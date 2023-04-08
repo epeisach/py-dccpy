@@ -1,13 +1,13 @@
-#===========================================================
+# ===========================================================
 # this module is for all the script-input file for CNS
-#===========================================================
+# ===========================================================
 
 
 ##########################################################
 def xplo2d():
     '''the input to generate script input
     '''
-    inp='''auto
+    inp = '''auto
 N
 N
 N
@@ -22,9 +22,9 @@ N
 QUIT
 '''
     
-    out='xplo2d.inp'
-    fw=open(out, "w")
-    fw.write ("%s" % inp)
+    out = 'xplo2d.inp'
+    fw = open(out, "w")
+    fw.write("%s" % inp)
     fw.close()
 
     return out
@@ -36,9 +36,8 @@ QUIT
 def generate():
     '''the input to generate the generate.inp
     '''
-
     
-    inp='''{+ file: generate_easy.inp +}
+    inp = '''{+ file: generate_easy.inp +}
 {+ directory: general +}
 {+ description: Generate coordinate and structure file for simple models +}
 {+ comment:
@@ -131,7 +130,7 @@ def generate():
 {* Make sure that the atom selection is specific for the nucleic acid
    residues *}
 {===>} dna_sele=(none);
-	    
+            
 {========================= generate parameters =============================}
 
 {* hydrogen flag - determines whether hydrogens will be output *}
@@ -739,17 +738,17 @@ $seg1.$counter[a4] $res1.$counter[a4] to $seg2.$counter[a4] $res2.$counter[a4]
  stop
 '''
 
-    out='generate.inp'
-    fw=open(out, 'w')
-    fw.write ("%s" %inp )
+    out = 'generate.inp'
+    fw = open(out, 'w')
+    fw.write("%s" % inp)
     fw.close()
     return out
-    
+
+
 #########################################################
-    
 def model_stat():
     
-    inp='''{+ file: model_stats.inp +}
+    inp = '''{+ file: model_stats.inp +}
 {+ directory: xtal_refine +}
 {+ description: Crystallographic model statistics +}
 {+ authors: Axel T. Brunger, and Paul D. Adams +}
@@ -1436,8 +1435,8 @@ def model_stat():
                              
                              sol_k_best=$sol_k_ref;
                              sol_b_best=$sol_b_ref;
-			     solrad_best=$solrad_best;
-			     shrink_best=$shrink_best;
+                             solrad_best=$solrad_best;
+                             shrink_best=$shrink_best;
                              
                              b=b;
 
@@ -2308,11 +2307,9 @@ def model_stat():
 
  stop
 '''
-    out='model_stat.inp'
-    fw=open(out, "w")
-    fw.write ("%s" % inp)
+    out = 'model_stat.inp'
+    fw = open(out, "w")
+    fw.write("%s" % inp)
     fw.close()
 
     return out
-
-    
