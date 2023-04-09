@@ -101,28 +101,28 @@ Simple Usage:   dcc  -pdb  xyzfile  -sf  sffile
 
     """ % config.VERSION
 
-    '''
-  items not shown for public.  (internal use)
-  -fofc,   followed by a given file name of Fo-FC map.
-  -2fofc,  followed by a given file name of 2Fo-FC map.
-  -path,   followed by a full path (e.g. ?/sf-valid/) to locate the executables.
-           (if the DCCPY environment is set, do not give path).
+    #   '''
+    # items not shown for public.  (internal use)
+    # -fofc,   followed by a given file name of Fo-FC map.
+    # -2fofc,  followed by a given file name of 2Fo-FC map.
+    # -path,   followed by a full path (e.g. ?/sf-valid/) to locate the executables.
+    #          (if the DCCPY environment is set, do not give path).
 
-  -noeds,       add it (do not calculate EDS).
-  -scale,       add it to use 'BULK LSSC ANISO EXPE', otherwise use defult.
-  -refmac_tls,  add it to use refmac to get full B factors, then do validation.
-  -twin,        add it to force refmac to calculate R/Rfree in twin mode.
-  -refine,      add it to do refinement (4 cycles) by refmac.
-  -sdsc_map,    generate ligmap required by sdsc.
-  -ligmapcif,   add it to generate density (table,html,jmol) around all ligands.(D&A)
-  -ligtable,    generate table,html,jmol by inputing dcc_file, dir, mapfile, pdbfile
+    # -noeds,       add it (do not calculate EDS).
+    # -scale,       add it to use 'BULK LSSC ANISO EXPE', otherwise use defult.
+    # -refmac_tls,  add it to use refmac to get full B factors, then do validation.
+    # -twin,        add it to force refmac to calculate R/Rfree in twin mode.
+    # -refine,      add it to do refinement (4 cycles) by refmac.
+    # -sdsc_map,    generate ligmap required by sdsc.
+    # -ligmapcif,   add it to generate density (table,html,jmol) around all ligands.(D&A)
+    # -ligtable,    generate table,html,jmol by inputing dcc_file, dir, mapfile, pdbfile
 
-  -cc,          add it to calculate cc/RsR using perfect FC (Biso=0).
-  -lldf,        add it to calculate LLDF (testing).
-  -rsrd,        add it to calculate zscores using database. (testing).
-  -cif2pdb     convert cif to pdb (dcc -cif2pdb ciffile)
-  -cif2cif     reformat cif to standard (dcc -cif2cif ciffile)
-    '''
+    # -cc,          add it to calculate cc/RsR using perfect FC (Biso=0).
+    # -lldf,        add it to calculate LLDF (testing).
+    # -rsrd,        add it to calculate zscores using database. (testing).
+    # -cif2pdb     convert cif to pdb (dcc -cif2pdb ciffile)
+    # -cif2cif     reformat cif to standard (dcc -cif2cif ciffile)
+    #   '''
 
     # dic['software'].append(['DCC', config.VERSION.split()[0],config.DCC])
 
@@ -559,7 +559,7 @@ def do_validation_auto(dic, pdb_new, sf_new):
         rcut = 0.05
 
     dic['refmac'] = 0  # refmac is by default, must be removed.
-    prog = dic['prog'].upper()
+    prog = dic['prog'].upper()  # pylint: disable=redefined-outer-name
     pp = ''
     if 'PHENIX' in prog:
         dic['phenix_x'] = 1
@@ -670,7 +670,7 @@ def do_validation(dic, pdb_new, sf_new):
 
         dic3['detail'] = 'without TLS correction'
         mtz3, mtz4, mtz5, pdb3, pdb4, pdb5, log3, log4, log5 = '', '', '', '', '', '', '', '', ''
-        mtz3, pdb3, log3, scr = prog.run_refmac(pdb_new, mtz, dic, 1, reso_in)
+        mtz3, pdb3, log3, _scr = prog.run_refmac(pdb_new, mtz, dic, 1, reso_in)
         parse.refmac_log(log3, dic3)  # update  dic3 from log3
 
         print('Rwork/Rfree: reported=%s/%s, calculated=%s/%s, fom=%s '
@@ -678,7 +678,7 @@ def do_validation(dic, pdb_new, sf_new):
 
         if tlsok:  # tls exist
             dic4['detail'] = 'with    TLS correction'
-            mtz4, pdb4, log4, scr = prog.run_refmac(pdb_tls, mtz, dic, 2, reso_in)
+            mtz4, pdb4, log4, _scr = prog.run_refmac(pdb_tls, mtz, dic, 2, reso_in)
             parse.refmac_log(log4, dic4)
 
         nn = best_of_solutions([dic3, dic4])
@@ -690,9 +690,9 @@ def do_validation(dic, pdb_new, sf_new):
 
         if not (dic['mtr'] > 1 or dic['model'] == 'Y' or len(dic['split1']) > 1 or len(dic['split2']) > 1 or dic['one'] == 1):
             if nn == 0:  # try scale, reso, wave, twin options
-                mtz5, pdb5, log5, scr, dic5 = prog.run_refmac_more(pdb_new, mtz, dic, dic3)
+                mtz5, pdb5, log5, _scr, dic5 = prog.run_refmac_more(pdb_new, mtz, dic, dic3)
             else:
-                mtz5, pdb5, log5, scr, dic5 = prog.run_refmac_more(pdb_tls, mtz, dic, dic4)
+                mtz5, pdb5, log5, _scr, dic5 = prog.run_refmac_more(pdb_tls, mtz, dic, dic4)
 
             parse.refmac_log(log5, dic5)
 
@@ -880,7 +880,7 @@ def write_all(dic, all_dic):
                     dic['nfree_n'], version))
         np = 2
 
-    for i, dd in enumerate(all_dic):
+    for _i, dd in enumerate(all_dic):
         if '?' in dd['rfact']:
             continue
         np = np + 1
@@ -1032,7 +1032,7 @@ def get_segid_cif(xyzf):
         if alt[i] == '?':
             alter = '.'
 
-        id = '_'.join([asym[i][0], comp[i], seq[i], inst, alter])
+        id = '_'.join([asym[i][0], comp[i], seq[i], inst, alter])  # pylint: disable=redefined-builtin
         if id != id0:
             segid.append([asym[i], id])
             id0 = id
@@ -1064,7 +1064,7 @@ def get_segid_pdb(xyzf):
             if tmp:
                 alt = tmp
 
-            id = '_'.join([ch, comp, seq, ins, alt])
+            id = '_'.join([ch, comp, seq, ins, alt])  # pylint: disable=redefined-builtin
             if id != id0:
                 segid.append([seg, id])
                 id0 = id
@@ -1087,7 +1087,7 @@ def add_lldf_to_outfile(dic, ofile):
     fw = open(ofile, 'w')
 
     xyzfile = dic['pdbfile']
-    ch_pep, chr_pep, ch_lig, chr_lig, ch_wat, chr_wat = tls.chain_res_range(xyzfile)
+    _ch_pep, _chr_pep, ch_lig, _chr_lig, _ch_wat, _chr_wat = tls.chain_res_range(xyzfile)
     #    print 'ch_lig,chr_lig=', ch_lig,chr_lig
 
     all_resid = []
@@ -1149,7 +1149,7 @@ def ligand_lldf(dcc, all_resid):
                 # print y,x
                 break
 
-    avg, dev, mini, maxi = util.mean_dev(rsr[1:], 0)  # remove ligand
+    avg, dev, _mini, _maxi = util.mean_dev(rsr[1:], 0)  # remove ligand
     # ncount = len(rsr[1:])
     if dev > 0.0:
         lldf = (rsr[0][0] - avg) / dev
@@ -1194,7 +1194,7 @@ def get_contact_resid(logfile):
 
 
 ##########################################################
-def add_modelid_to_outfile(dic, ofile):
+def add_modelid_to_outfile(dic, ofile):  # pylint: disable=unused-argument
     '''add model id to the final cif file. Skip if only one model
     '''
 
@@ -1228,7 +1228,7 @@ def add_modelid_to_outfile(dic, ofile):
             k2 = k2 + 1
         elif len(t) > 7 and (k1 > 0 or k2 > 0):
             if k1 > 0:
-                id = [t[1], t[2], t[3], t[4], t[5]]
+                id = [t[1], t[2], t[3], t[4], t[5]]  # pylint: disable=redefined-builtin
                 if id == id_mapman:
                     nmod = nmod + 1
             elif k2 > 0:
@@ -1707,9 +1707,9 @@ def check_cif(xyzfile, dic):
 
     ###
     items, values = cif.cifparse(flist, '_computing.')
-    prog = cif.parse_values(items, values, '_computing.structure_refinement')
-    if prog:
-        dic['prog'] = prog[0].split()[0]
+    rprog = cif.parse_values(items, values, '_computing.structure_refinement')
+    if rprog:
+        dic['prog'] = rprog[0].split()[0]
 
     ###
     c = cif.get_cell(flist)
@@ -1722,7 +1722,7 @@ def check_cif(xyzfile, dic):
     dbtype = cif.parse_values(items, values, '_pdbx_database_related.content_type')
     if len(dbid) > 1 and len(dbtype) > 1:
         dic['split2'] = ''
-        for i, x in enumerate(dbid):
+        for i, _x in enumerate(dbid):
             if dbtype[i] == 'split':
                 dic['split2'] = dic['split2'] + dbid[i] + ' '
 
@@ -1880,9 +1880,9 @@ def check_pdb(pdbfile, dic):
             util.perror('Warning: PDB header shows B factor "RESIDUAL ONLY". Check needed!')
 
         elif ' NCS GROUPS :' in line:
-            ncs = util.get_value_after_id(line, ":")
-            if ncs.isdigit() and int(ncs) > 0:
-                dic['ncs'] = int(ncs)
+            ncsg = util.get_value_after_id(line, ":")
+            if ncsg.isdigit() and int(ncsg) > 0:
+                dic['ncs'] = int(ncsg)
 
         elif ('REMARK   3' in line
               and ('  FRACTION:' in line or 'TWIN FRACTION :' in line)):
@@ -2367,7 +2367,7 @@ def update_bfull(dic):
 
         sf_new = check_sf(dic)  # update dic
         mtz = prog.sf_convertor(sf_new, pdbfile, 'mtz')
-        mtz, pdb, log, scr = prog.run_refmac(pdbfile, mtz, dic, 1, ' -tls -addu -all0 ')
+        mtz, pdb, _log, _scr = prog.run_refmac(pdbfile, mtz, dic, 1, ' -tls -addu -all0 ')
 
         if not util.check_file(100, mtz):
             return
@@ -2917,7 +2917,7 @@ _symmetry_equiv.pos_as_xyz
 
 
 ##########################################################
-def remove_onecif_table(cif, table):
+def remove_onecif_table(cif, table):  # pylint: disable=redefined-outer-name
     '''a simplye way to remove a table in cif (not a safe way)
     '''
 
@@ -2941,13 +2941,13 @@ def remove_onecif_table(cif, table):
 
 
 ##########################################################
-def check_ligand(pdbfile, id):
+def check_ligand(pdbfile, id):  # pylint: disable=redefined-builtin
     '''Check if there is ligand in the pdbfile
     id=0, for ligand and peptide; id= 1, only for ligand;
     '''
 
     pdb = open(pdbfile, 'r').readlines()
-    ch_pep, chr_pep, ch_lig, chr_lig, ch_wat, chr_wat = tls.chain_res_range(pdbfile)
+    ch_pep, _chr_pep, ch_lig, _chr_lig, _ch_wat, _chr_wat = tls.chain_res_range(pdbfile)
 
     # print ch_lig,chr_pep
     if id == 0 or id == 1:
@@ -2961,7 +2961,7 @@ def check_ligand(pdbfile, id):
                         # print natm, k, v, x
                         if natm > 1:
                             return 1
-    if id == 0:
+    if id == 0:  # pylint: disable=redefined-builtin
         for k, v in ch_pep.items():
             if len(v) < 15:
                 return 1
@@ -2998,7 +2998,7 @@ def check_bfactor(pdbfile):
 
 
 ##########################################################
-def add_const_to_biso(pdbfile, minb, id):
+def add_const_to_biso(pdbfile, minb, id):  # pylint: disable=redefined-builtin
     ''' Add minb to Biso of each atom
     if id==0, make Biso all zero;  id==1, add minb
     '''

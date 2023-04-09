@@ -69,7 +69,7 @@ def cut_map_around_ligand_peptide(dccfile, dic, mapfile_in, xyzfile_in):
     url = 'http://sf-tool.wwpdb.org/users_data/dir_%s/' % dic['dir']
     # url=os.environ['THIS_SERVICE_URL__FIX_ME'] + '/users_data/dir_%s/' %dic['dir']
 
-    ch_pep, chr_pep, ch_lig, chr_lig, ch_wat, chr_wat = tls.chain_res_range(pdbfile)
+    ch_pep, _chr_pep, ch_lig, _chr_lig, _ch_wat, _chr_wat = tls.chain_res_range(pdbfile)
 
     ligpdb = non_poly_pdb(ch_pep, ch_lig, pdbfile)  # get non-poly xyz file
     dcc = get_dcc(dccfile)  # get a list for dcc of each residue
@@ -77,7 +77,7 @@ def cut_map_around_ligand_peptide(dccfile, dic, mapfile_in, xyzfile_in):
     if not dcc:
         util.perror('Warning: Failed to parse EDS values! No ligand/peptide maps will be generated. ')
 
-    for k, v in ch_pep.items():
+    for _k, v in ch_pep.items():
         if len(v) < 15:  # length of peptide
             if not dic['sdsc_map']:
                 map_around_peptide(fw_itool, dic, mapfile, ligpdb, dcc, ch_pep, url)
@@ -165,8 +165,8 @@ def map_around_compound(mapfile, coord, compid):
     command = "chmod +x %s ; ./%s  " % (mapscr, mapscr) + arg
     os.system(command)
 
-    min, max, mean, sigma = map_info(mapfile)
-    min1, max1, mean1, sigma1 = map_info(mapout)
+    _min, _max, _mean, sigma = map_info(mapfile)
+    _min1, _max1, _mean1, sigma1 = map_info(mapout)
     cont = {'0.5': 0.5, '0.7': 0.7, '1.0': 1.0, '1.5': 1.5, '2.0': 2.0}  # contour 4  map in asu.
     cont1 = cont  # contour 4 sub map.
 
@@ -289,7 +289,7 @@ def find_xyzlim_compound(compid, coord):
         print('Error: %s can not be found in the coordinate. try a new id. ' % (compid))
         return '', ''
 
-    frac, orth = util.frac_orth_matrix(cell)  # get matrix
+    frac, _orth = util.frac_orth_matrix(cell)  # get matrix
     border = 2.0
     xx_min, xx_max = min(xx) - border, max(xx) + border
     yy_min, yy_max = min(yy) - border, max(yy) + border
@@ -350,7 +350,7 @@ def remove_ligand(pdbfile):
     fr = open(pdbfile, 'r')
     fw = open(newpdb, 'w')
 
-    ch_pep, chr_pep, ch_lig, chr_lig, ch_wat, chr_wat = tls.chain_res_range(pdbfile)
+    _ch_pep, _chr_pep, ch_lig, _chr_lig, _ch_wat, _chr_wat = tls.chain_res_range(pdbfile)
 
     for x in fr:
         if (('ATOM' in x[:4] or 'HETA' in x[:4] or 'ANISOU' in x[:6])):
@@ -393,8 +393,8 @@ def get_html_table_baddcc_general(mapfile, dcc):
             s1 = ' '
             for y in ss:
                 s1 = s1 + '<td>%s</td>' % y
-            all = '<tr>' + s1 + '</tr>\n'
-            fw.write(all)
+            rall = '<tr>' + s1 + '</tr>\n'
+            fw.write(rall)
 
     fw.write('</TABLE>\n </html>\n')
 
@@ -480,8 +480,8 @@ def html_table_content(fw, idd, y, url, maphtml):
     else:
         ss = ss + '<td> </td> '
 
-    all = '<tr>' + ss + '</tr>\n'
-    fw.write(all)
+    rall = '<tr>' + ss + '</tr>\n'
+    fw.write(rall)
 
     return warn
 #
@@ -618,7 +618,7 @@ _dcc_peptide.sub_map_sigma
     fw = open(html_table, 'w')
     html_table_head(fw, 'Peptides (or nucleic acid)', 1)
 
-    min, max, mean, sigma = map_info(mapfile)
+    _min, _max, _mean, sigma = map_info(mapfile)
     cont = {'0.5': 0.5, '0.7': 0.7, '1.0': 1.0, '1.5': 1.5, '2.0': 2.0}  # contour 4  map in asu.
     cont1 = cont  # contour 4 sub map.
 
@@ -639,7 +639,7 @@ _dcc_peptide.sub_map_sigma
             continue
 
         mapout = cut_map_around_xyz(mapfile, peppdb, idd)
-        min1, max1, mean1, sigma1 = map_info(mapout)
+        _min1, _max1, _mean1, sigma1 = map_info(mapout)
         print('%s: natom=%d: FullMap-sigma=%s: PepMap-sigma=%s' % (idd, natom, sigma, sigma1))
 
         scale = 1.0
@@ -699,7 +699,7 @@ _dcc_ligand.sub_map_sigma
         fw = open(html_table, 'w')
         html_table_head(fw, 'Ligands', 1)
 
-    min, max, mean, sigma = map_info(mapfile)
+    _min, _max, _mean, sigma = map_info(mapfile)
     cont = {'0.5': 0.5, '0.7': 0.7, '1.0': 1.0, '1.5': 1.5, '2.0': 2.0}  # contour 4 map in asu.
     cont1 = {'0.5': 0.5, '0.7': 0.7, '1.0': 1.0, '1.5': 1.5, '2.0': 2.0}  # contour 4 sub map.
     contlist = ['0.5', '0.7', '1.0', '1.5', '2.0']
@@ -710,7 +710,7 @@ _dcc_ligand.sub_map_sigma
 
         nres_list = isolate_connect_ligand(pdb, k, v)
         ligid = 0
-        for ii, x in enumerate(nres_list):
+        for _ii, x in enumerate(nres_list):
 
             pep = get_table_value(pdb, k, x, dcc)  # look through dcc table natom>=2
 
@@ -727,7 +727,7 @@ _dcc_ligand.sub_map_sigma
                 continue
 
             mapout = cut_map_around_xyz(mapfile, ligpdb, idd)
-            min1, max1, mean1, sigma1 = map_info(mapout)  # for
+            _min1, _max1, _mean1, sigma1 = map_info(mapout)  # for
             print('%s: natom=%d: FullMap-sigma=%s: LigMap-sigma=%s' % (idd, natom, sigma, sigma1))
             if len(x) > 1:  # exist of covelently bonded ligands
                 ncov = ncov + 1
@@ -751,7 +751,7 @@ _dcc_ligand.sub_map_sigma
                 util.perror('Warning: Negative sigma scale, possible no map cut. Check needed.')
 
             if dic['sdsc_map']:
-                level, jmol = gen_ligmap_sdsc(idd, contlist, cont1, cont)
+                level, jmol = gen_ligmap_sdsc(idd, contlist, cont1, cont)  # pylint: disable=arguments-out-of-order
                 level_sdsc.append(level)
                 jmol_sdsc.append(jmol)
                 continue
@@ -821,7 +821,7 @@ def isolate_connect_ligand(pdb, k, v):
         return [v]
 
     idd = '%s_%s_all' % (k, v[0])
-    natom, pdb_lig = get_subpdb(pdb, k, v, idd)
+    _natom, pdb_lig = get_subpdb(pdb, k, v, idd)
 
     tmp = [v[0]]
     for i, x in enumerate(v):
@@ -958,7 +958,7 @@ def gen_ligmap_sdsc(idd, contlist, cont, cont1):
     level, jmol = [], []
     comma = ','
     # n = len(contlist)
-    for i, x in enumerate(contlist):
+    for _i, x in enumerate(contlist):
 
         ss = '    {"id":"%s", "name":"%s_cut.map", ' % (idd, idd) + \
             '"actual_contour_level_cut":%.1f, "actual_contour_level_full":%.1f}%s' % (cont[x], cont1[x], comma)
@@ -1145,7 +1145,7 @@ def map_info(mapfile):
     '''get the min, max, mean, sigma from the map
     '''
 
-    min, max, mean, sigma = '-1', '-1', '-1', '-1'
+    min, max, mean, sigma = '-1', '-1', '-1', '-1'  # pylint: disable=redefined-builtin
     log = mapfile + '_header'
     scr = mapfile + '.sh'
 

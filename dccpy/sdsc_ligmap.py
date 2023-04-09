@@ -83,7 +83,7 @@ def sdsc_ligand(dic, mapfile, pdbfile):
             lig_ch[ch].append(res)
 
     lig_group = []  # group the connected ligands
-    for ch, lig in lig_ch.iteritems():
+    for ch, lig in lig_ch.iteritems():  # pylint: disable=no-member  # Python2 based
         tmp = get_lig_group(lig, res_pdb)
         if tmp:
             lig_group.extend(tmp)
@@ -166,7 +166,7 @@ def residue_xyz(comp, ch, nres, pdblist):
 
 
 ##########################################################
-def test_connect(res1, res2, data1, data2):
+def test_connect(res1, res2, data1, data2):  # pylint: disable=unused-argument
 
     # print res1,res2,len(data1), len(data2)
     cutoff = 1.6
@@ -229,7 +229,7 @@ def get_lig_group(liglist, res_pdb):
 
 
 ##########################################################
-def mini_map(mapfile, pdbfile, nonpoly, res_pdb, scale_card):
+def mini_map(mapfile, pdbfile, nonpoly, res_pdb, scale_card):  # pylint: disable=unused-argument
     '''mapfile: the map in asu;
     pdbfile: a list (non-poly);
     nonpoly: [[comp_alt_ch_nres, ..], [..]]
@@ -239,7 +239,7 @@ def mini_map(mapfile, pdbfile, nonpoly, res_pdb, scale_card):
     cont1 = {'0.5': 0.5, '0.7': 0.7, '1.0': 1.0, '1.5': 1.5, '2.0': 2.0}  # contour 4 sub map.
     contlist = ['0.5', '0.7', '1.0', '1.5', '2.0']
 
-    min, max, mean, sigma = ligand.map_info(mapfile)  # big map info
+    _min, _max, _mean, sigma = ligand.map_info(mapfile)  # big map info
     lig_sdsc, level_sdsc, jmol_sdsc = [], [], []
 
     ncov = 0
@@ -250,7 +250,7 @@ def mini_map(mapfile, pdbfile, nonpoly, res_pdb, scale_card):
             os.system('rm -f %s' % ligpdb)
             continue
         mapout = ligand.cut_map_around_xyz(mapfile, ligpdb, idd)
-        min1, max1, mean1, sigma1 = ligand.map_info(mapout)  # sub map info
+        _min1, _max1, _mean1, sigma1 = ligand.map_info(mapout)  # sub map info
         print('%s: natom=%d: FullMap-sigma=%s: LigMap-sigma=%s' % (idd, natom, sigma, sigma1))
 
         if len(x) > 1:  # exist of covalently bonded ligands, pr PRD
@@ -269,7 +269,7 @@ def mini_map(mapfile, pdbfile, nonpoly, res_pdb, scale_card):
         else:
             util.perror('Error: Mapcut is wrong. No scale is applied. (check needed).')
 
-        level, jmol = ligand.gen_ligmap_sdsc(idd, contlist, cont1, cont)
+        level, jmol = ligand.gen_ligmap_sdsc(idd, contlist, cont1, cont)  # pylint: disable=arguments-out-of-order
         level_sdsc.append(level)
         jmol_sdsc.append(jmol)
 

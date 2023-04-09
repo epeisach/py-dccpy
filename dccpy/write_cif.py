@@ -5,7 +5,7 @@ import parse
 
 
 ##########################################################
-def map_detail(id):
+def map_detail(id):  # pylint: disable=redefined-builtin
     '''a simple explain about the statistics.
     '''
 
@@ -171,7 +171,7 @@ loop_
         ch = x[1]
         if ch == '_':
             ch = '.'
-        id = '%s_%s_%s' % (x[0], ch, x[2])
+        id = '%s_%s_%s' % (x[0], ch, x[2])  # pylint: disable=redefined-builtin
         ids.append(id)
 
     dic, dic1, dic2, dic3 = {}, {}, {}, {}
@@ -234,7 +234,7 @@ loop_
 
 
 ######################################################################
-def select_bad_residue(rsrz, wrsrz, z_zo, zdiff, idd):
+def select_bad_residue(rsrz, wrsrz, z_zo, zdiff, idd):  # pylint: disable=redefined-outer-name
 
     rsr, zd = '', ''
 
@@ -335,7 +335,7 @@ def get_dic_edstat(cifrefm, ids):
     dcc = parse.parse_dcc(flist, '_pdbx_map.')
 
     for x in dcc:
-        id = '%s_%s_%s' % (x[0], x[1], x[2])
+        id = '%s_%s_%s' % (x[0], x[1], x[2])  # pylint: disable=redefined-builtin
         if len(x) < 11:
             dic[id] = [x[3], x[4], x[5], x[6], x[7], x[8], x[9]]  # for whole residue
         else:
@@ -392,7 +392,7 @@ loop_
     dcc = parse.parse_dcc(flist, '_pdbx_rscc_mapman.')
     ids, bfact = [], []
     for x in dcc:
-        id = '%s_%s_%s_%s_%s' % (x[0], x[1], x[2], x[3], x[10])
+        id = '%s_%s_%s_%s_%s' % (x[0], x[1], x[2], x[3], x[10])  # pylint: disable=redefined-builtin
         ids.append(id)
 
         if float(x[7]) == 0 or float(x[6]) > 990 or 'HOH' in id:
@@ -408,7 +408,7 @@ loop_
 
     #    b1, b2, q2 = util.limits_by_iqr(bfact, -1, scale=4) #remove extre values
     #    data, outlier=filter_data(bfact, [b1,b2], 0)
-    b_avg, b_dev, minb, maxb = util.mean_dev(bfact, -1)
+    b_avg, b_dev, _minb, _maxb = util.mean_dev(bfact, -1)
     #    print 'b_avg, b_dev ', b_avg, b_dev, minb, maxb, b1, b2, q2
 
     prob = []
@@ -483,7 +483,7 @@ def get_dic(cifrefm, ids):
     flist = open(cifrefm, 'r').readlines()
     dcc = parse.parse_dcc(flist, '_pdbx_rscc_mapman.')
     for x in dcc:
-        id = '%s_%s_%s_%s_%s' % (x[0], x[1], x[2], x[3], x[10])
+        id = '%s_%s_%s_%s_%s' % (x[0], x[1], x[2], x[3], x[10])  # pylint: disable=redefined-builtin
         dic[id] = [x[4], x[5], x[6], x[7], x[9]]
 
     return dic
@@ -768,7 +768,7 @@ def test_motif(helix, sstr, resname, ch, resseq):
     if resn not in util.protein():
         return '.'
 
-    id = 'T'
+    id = 'T'  # pylint: disable=redefined-builtin
     for x in helix:
         if x[0] == ch and x[1] <= resseq <= x[2]:
             return 'H'
@@ -781,7 +781,7 @@ def test_motif(helix, sstr, resname, ch, resseq):
 
 
 ##########################################################
-def dcc_ciftoken(id, dic):
+def dcc_ciftoken(id, dic):  # pylint: disable=redefined-builtin
     '''contains the cif tokens for mapman and phenix.
     dic contains the cif tokens.
     '''

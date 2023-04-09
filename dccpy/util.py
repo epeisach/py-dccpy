@@ -102,7 +102,7 @@ def chain_res_atom(pdb):
 
     fp = open(pdb, 'r')
 
-    id = 0
+    id = 0  # pylint: disable=redefined-builtin
     dd = {}
     for x in fp:
         if not ('ATOM' in x[:4] or 'HETATM' in x[:6] or len(x.strip()) < 50):
@@ -162,7 +162,7 @@ def check_file(size, *files):
 
 
 ##########################################################
-def str_after_id(line, id):
+def str_after_id(line, id):  # pylint: disable=redefined-builtin
     """ get string after a given id """
 
     if id not in line:
@@ -177,7 +177,7 @@ def str_after_id(line, id):
 
 
 ##########################################################
-def float_after_id(line, id):
+def float_after_id(line, id):  # pylint: disable=redefined-builtin
     """ get float after a given id """
 
     if id not in line:
@@ -198,7 +198,7 @@ def float_after_id(line, id):
 
 
 ##########################################################
-def int_after_id(line, id):
+def int_after_id(line, id):  # pylint: disable=redefined-builtin
     """ get int after a given id """
 
     if id not in line:
@@ -278,7 +278,7 @@ def is_digit(s):
 
 
 ##########################################################
-def get_value_after_id(line, id):
+def get_value_after_id(line, id):  # pylint: disable=redefined-builtin
     """ get value after a given id """
 
     if id not in line:
@@ -331,7 +331,7 @@ def is_cif(file):
             n = 1
             break
         elif (t[0] == '_' and '.' in t):
-            n1, cate, item = cif.check_item(t)
+            n1, _cate, _item = cif.check_item(t)
             if n1 > 0:
                 n = 1
                 break
@@ -746,9 +746,9 @@ def get_file_by_pdbid(pdbid_in, idd):
         print('Error: PDBID (%s) is not 4 characters. ' % pdbid)
         sys.exit()
 
-    hash = pdbid[1:3]
+    hash = pdbid[1:3]  # pylint: disable=redefined-builtin
 
-    cif = '%s/mmCIF/%s/%s.cif.gz' % (pth, hash, pdbid)
+    cif = '%s/mmCIF/%s/%s.cif.gz' % (pth, hash, pdbid)  # pylint: disable=redefined-outer-name
     pdb = '%s/pdb/%s/pdb%s.ent.gz' % (pth, hash, pdbid)
     sf = '%s/structure_factors/%s/r%ssf.ent.gz' % (pth, hash, pdbid)
 
@@ -862,7 +862,7 @@ def move(finp, fout):
 
 
 ##########################################################
-def position_cif_table(cif, table):
+def position_cif_table(cif, table):  # pylint: disable=redefined-outer-name
     '''a simple way to get the start-end position of the ciflist ( cif )
     '''
 
@@ -1038,7 +1038,7 @@ def get_phenix_version_from_dic(dic):
         if s[0] == 'PHENIX' and 'model vs diffraction data validation' in s[2]:
             vers = s[1].split('-')[0]
             maj = int(vers.split('.')[0])
-            min = int(vers.split('.')[1])
-            return maj * 1000 + min
+            minor = int(vers.split('.')[1])
+            return maj * 1000 + minor
 
     return ret

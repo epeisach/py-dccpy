@@ -172,7 +172,7 @@ def parse_values(items, values, item):
 ##########################################################
 #  Below are the applications
 ##########################################################
-def cif_nonloop_format(rows, items):
+def cif_nonloop_format(rows, items):  # pylint: disable=unused-argument
     '''get the maximum length in the items
     '''
 
@@ -498,7 +498,7 @@ def asym2chain(asym):
     as2ch = {}
     # print set(asym)
     uch = set(asym)
-    id = 0
+    id = 0  # pylint: disable=redefined-builtin
     for x in uch:
         if len(x) > 2:
             id = 1
@@ -550,7 +550,7 @@ def cif2pdb(ciffile):
     add_scale(fw, flist)
 
     # for anisou records
-    unatm, uatom, uasym, useq, ucomp, uins, ualt, u11, u22, u33, u12, u13, u23 = get_uij(flist)
+    _unatm, uatom, uasym, useq, ucomp, _uins, _ualt, u11, u22, u33, u12, u13, u23 = get_uij(flist)
 
     # for xyz
     group, natm, atom, asym, seq, comp, ins, alt, x, y, z, occ, biso, model, symbol = get_xyz(flist)
@@ -788,7 +788,7 @@ def add_tls(fw, flist):
     '''Add TLS records to PDB, if exist
     '''
 
-    prog, version = get_prog(flist)
+    prog, _version = get_prog(flist)
 
     items, values = cifparse(flist, '_ccp4_refine_tls.')  # a loop
     if items:
@@ -959,7 +959,7 @@ def add_header(fw, flist):
     '''
 
     items, values = cifparse(flist, "_database_2.")
-    id = parse_values(items, values, "_database_2.database_id")
+    id = parse_values(items, values, "_database_2.database_id")  # pylint: disable=redefined-builtin
     code = parse_values(items, values, "_database_2.database_code")
     pdbid = ['XXXX']
     if id and code:
@@ -974,7 +974,7 @@ def add_header(fw, flist):
 
     items, values = cifparse(flist, "_pdbx_database_related.")
     ids = parse_values(items, values, "_pdbx_database_related.db_id")
-    type = parse_values(items, values, "_pdbx_database_related.content_type")
+    type = parse_values(items, values, "_pdbx_database_related.content_type")  # pylint: disable=redefined-builtin
     pdbids = ''
     if ids and type:
         for i, x in enumerate(type):
@@ -1208,7 +1208,7 @@ def add_ncs(fw, flist):
 
     items, values = cifparse(flist, "_struct_ncs_oper.")
     if items:
-        id = parse_values(items, values, '_struct_ncs_oper.id')
+        id = parse_values(items, values, '_struct_ncs_oper.id')  # pylint: disable=redefined-builtin
         code = parse_values(items, values, '_struct_ncs_oper.code')
         b11 = parse_values(items, values, '_struct_ncs_oper.matrix[1][1]')
         b12 = parse_values(items, values, '_struct_ncs_oper.matrix[1][2]')
@@ -1343,26 +1343,26 @@ primary
     print(content)
     sys.exit()
 
-    '''
-##########################################################
-if __name__ == '__main__':
+#     '''
+# ##########################################################
+# if __name__ == '__main__':
 
-    files=sys.argv[1]
-    print('file=%s' %files)
-    flist=open(files, 'r').readlines()
-    items,values = cifparse(flist, '_cell.')
-    v1=parse_values(items,values, '_cell.entry_id')
-    v2=parse_values(items,values, '_cell.length_c')
-    v3=parse_values(items,values, '_cell.angle_beta')
-    print(v1,v2,v3)
+#     files=sys.argv[1]
+#     print('file=%s' %files)
+#     flist=open(files, 'r').readlines()
+#     items,values = cifparse(flist, '_cell.')
+#     v1=parse_values(items,values, '_cell.entry_id')
+#     v2=parse_values(items,values, '_cell.length_c')
+#     v3=parse_values(items,values, '_cell.angle_beta')
+#     print(v1,v2,v3)
 
-    items,values = cifparse(flist, '_database_PDB_rev.')
-    v1=parse_values(items,values, '_database_PDB_rev.num')
-    v2=parse_values(items,values, '_database_PDB_rev.date')
-    v3=parse_values(items,values, '_database_PDB_rev.status')
+#     items,values = cifparse(flist, '_database_PDB_rev.')
+#     v1=parse_values(items,values, '_database_PDB_rev.num')
+#     v2=parse_values(items,values, '_database_PDB_rev.date')
+#     v3=parse_values(items,values, '_database_PDB_rev.status')
 
-    print(v1,v2,v3)
+#     print(v1,v2,v3)
 
-##########################################################
+# ##########################################################
 
-    '''
+#     '''

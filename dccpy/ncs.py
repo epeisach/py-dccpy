@@ -116,7 +116,7 @@ def check_lim(lim_ens, chain, lim_basy, lim_easy, lim_bseq, lim_eseq):
     '''
 
     tab = 'struct_ncs_dom_lim'
-    for i, x in enumerate(lim_ens):  #
+    for i, _x in enumerate(lim_ens):  #
         ch1, ch2, ns1, ns2 = lim_basy[i], lim_easy[i], lim_bseq[i], lim_eseq[i]
         if ch1 != ch2:
             util.perror('Warning: two chainID (%s & %s) are not the same. look at row %2d in %s.' % (ch1, ch2, i + 1, tab))
@@ -137,7 +137,7 @@ def check_res(res_ens, chain, res_ref, res_asy, res_type, res_num, res_rms):
     '''
 
     tab = 'refine_ls_restr_ncs'
-    for i, x in enumerate(res_ens):
+    for i, _x in enumerate(res_ens):
         if res_ref and 'X-RAY DIFFRACTION' not in res_ref[i]:
             util.perror('Warning: refine_id must be "X-RAY DIFFRACTION". look at row %2d in %s.' % (i + 1, tab))
 

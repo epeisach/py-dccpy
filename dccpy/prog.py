@@ -15,7 +15,7 @@ import write_cif
 # ===========================================================
 
 ##########################################################
-def sf_convertor(sffile, pdbfile, type):
+def sf_convertor(sffile, pdbfile, type):  # pylint: disable=redefined-builtin
     '''convert to any type of formats
     '''
 
@@ -130,13 +130,13 @@ def run_buster(pdbfile, sffile, dic):
     res = ' '
     if util.is_number(dic['resh']) and util.is_number(dic['resl']) :
         res = ' -R %s %s ' % (dic['resl'], dic['resh'])
-    dir = 'buster_%d' % os.getgid()
+    dir = 'buster_%d' % os.getgid()  # pylint: disable=redefined-builtin
     arg = 'refine -p %s  -m %s -d %s -nbig 1 -nsmall 0 -nthreads  6  %s  StopOnGellySanityCheckError=no ' % (pdbfile, sffile, dir, res)
     os.system(arg)
 
 
 ##########################################################
-def run_ccp4(pdbfile, sffile, type1):
+def run_ccp4(pdbfile, sffile, type1):  # pylint: disable=unused-argument
     '''run sub-programs of CCP4
     '''
     outfile = 'ccp4__%s.log' % type1
@@ -156,7 +156,7 @@ def run_ccp4(pdbfile, sffile, type1):
 
 
 ##########################################################
-def calc_asa_areaimol(file, id):
+def calc_asa_areaimol(file, id):  # pylint: disable=redefined-builtin
     '''calculate solvent accessible area
     '''
 
@@ -182,7 +182,7 @@ eof-area
 
 
 ##########################################################
-def get_resid_percent_asa(outf, id):
+def get_resid_percent_asa(outf, id):  # pylint: disable=redefined-builtin
     '''get the percentage of the ASA for each residue
     '''
 
@@ -542,9 +542,9 @@ def refmac_refine(pdb_new, sf_new, dic):
     util.delete_file(log, pdb_ref, refmac_cif)
 
     if dic['tls'] > 0:
-        mtz3, pdb_ref, log, scr = run_refmac(pdb_new, mtz, dic, 1, ' -rest -ncyc -tls ')
+        mtz3, pdb_ref, log, _scr = run_refmac(pdb_new, mtz, dic, 1, ' -rest -ncyc -tls ')
     else:
-        mtz3, pdb_ref, log, scr = run_refmac(pdb_new, mtz, dic, 1, ' -rest -ncyc ')
+        mtz3, pdb_ref, log, _scr = run_refmac(pdb_new, mtz, dic, 1, ' -rest -ncyc ')
 
     # arg='auto -refine refmac -pdb %s -sf %s -ncyc 2 > /dev/null ' %(pdb_new, sffile_new)
     # os.system(arg)
@@ -883,7 +883,7 @@ def run_shelx(pdb_new, shelx_sf):
 
     print('Running shelx (%s, %s)...' % (pdb_new, shelx_sf))
 
-    ins_name, base1 = run_shelxpro(pdb_new)
+    _ins_name, base1 = run_shelxpro(pdb_new)
 
     shelx_log = 'shelx_%s.log' % base1
     util.move(shelx_sf, base1 + '.hkl')
@@ -942,7 +942,7 @@ def find_xyzlimt(extend, coord):
         print('Error: residue can not be found in the coordinate.')
         return xyzlim
 
-    frac, orth = util.frac_orth_matrix(cell)  # get matrix
+    frac, _orth = util.frac_orth_matrix(cell)  # get matrix
     xx_min, xx_max = min(xx) - extend, max(xx) + extend
     yy_min, yy_max = min(yy) - extend, max(yy) + extend
     zz_min, zz_max = min(zz) - extend, max(zz) + extend
@@ -1134,7 +1134,7 @@ def run_eds_omit(mtzo, pdbfile, dic, dic3):
     # mtz3 has FC PHIC with the ligand
 
     map_fc = 'CCP4_FC.map'
-    mtz2map(mtz3, pdbfile, map_fc, 'FC')
+    mtz2map(mtz3, pdbfile, map_fc, 'FC', dic)
 
     map_2fofc = 'CCP4_2FOFC.map'
     mtz2map(mtzo, pdbfile, map_2fofc, '2FO_FC', dic)
@@ -1442,7 +1442,7 @@ def split_pdb_edstat(pdb):
 
 
 ##########################################################
-def getpdb_na(fp, id):
+def getpdb_na(fp, id):  # pylint: disable=redefined-builtin
     '''get the NA pdb file (base, sugar, phos)
     '''
 
@@ -1544,7 +1544,9 @@ def split_pdb(pdb):
         phos_order = util.sort_column(phos, 22, 27)
         for z in phos_order:
             fw3.write(''.join(z))
-    fw1.close(), fw2.close(), fw3.close()
+    fw1.close()
+    fw2.close()
+    fw3.close()
 
     return out1, out2, out3
 
@@ -1664,7 +1666,7 @@ def run_refmac_more(pdb, mtz, dic, dici):
 
         dicx['detail'] = detail[i]
 
-        id = ntry + 1 + i
+        id = ntry + 1 + i  # pylint: disable=redefined-builtin
         mtzo, pdbo, logo, scr = run_refmac(pdb, mtz, dic, id, x)
         parse.refmac_log(logo, dicx)
 

@@ -10,7 +10,7 @@ from util import perror, is_digit, delete_file, get_value_after_id, is_number, m
 
 
 ##########################################################
-def check_tls(pdb, id):
+def check_tls(pdb, id):  # pylint: disable=redefined-builtin
     '''
     External interface
     id = 0, pdb is a file; id=1, pdb is a list
@@ -125,7 +125,7 @@ def check_residue_range(all_range):
 
 
 ##########################################################
-def remove_pdb_item(fp_inp, id, item):
+def remove_pdb_item(fp_inp, id, item):  # pylint: disable=redefined-builtin
     '''
     id=0, fp is a pdbfile & return a pdb file;
     id=1, fp is a list of pdb & return two lists
@@ -166,7 +166,7 @@ def remove_pdb_item(fp_inp, id, item):
 
 
 ##########################################################
-def chain_res_list(fr, id):
+def chain_res_list(fr, id):  # pylint: disable=redefined-builtin
     '''use dic to contain chain-ID and residue range, pdb is a list.
     id=0: not include waters; id=1: include waters.
     '''
@@ -233,27 +233,27 @@ def parse_tls_range_refmac(x, ntls):
 ##########################################################
 def get_residue_range_from_resname(ch, res, fp):
 
-    range = []
+    rng = []
     for x in fp:
         if (('ATOM' in x[:4] or 'HETA' in x[:4]) and (ch == x[20:22].strip() and res == x[17:20].lower())):
-            range.append(x[22:26])
-    if not range:
+            rng.append(x[22:26])
+    if not rng:
         perror('\nError: the chainid/resname (%s %s) is not in the coordinate.' % (ch, res))
-        return range
+        return rng
 
-    nres1, nres2 = int(range[0]), int(range[-1])
-    range1 = [ch, nres1, nres2]
+    nres1, nres2 = int(rng[0]), int(rng[-1])
+    rng1 = [ch, nres1, nres2]
 
-    return range1
+    return rng1
 
 
 ##########################################################
-def parse_tls_range_phenix_special(tls, chain, chain_range, fp):
+def parse_tls_range_phenix_special(tls, chain, chain_range, fp):  # pylint: disable=unused-argument
     '''It involves in resname : for temp use. Modify later!
     '''
 
-    range = []
-    for i, x in enumerate(tls):
+    range = []  # pylint: disable=redefined-builtin
+    for i, _x in enumerate(tls):
         if pattern(i, tls, 'chain', '?', 'and', 'resname'):
             ch, resname = tls[2], tls[i + 4]
             range_t = get_residue_range_from_resname(ch, resname, fp)
@@ -490,7 +490,7 @@ def pattern(i, tls, *ss):
 
 
 ##########################################################
-def parse_tls_phenix_not(i, ch, tls, chain, chain_range, id):
+def parse_tls_phenix_not(i, ch, tls, chain, chain_range, id):  # pylint: disable=redefined-builtin
     '''parse tls range involve NOT;
     id=0 for style 'chain F and not resid 0'
     id=1 for style 'chain F and not  not (resseq 539:581 or ..)'
@@ -505,7 +505,7 @@ def parse_tls_phenix_not(i, ch, tls, chain, chain_range, id):
         chain_range_not.append([n1, n2])
 
     else:
-        m, tmp_list = get_parenthetic_contents(i + 4, tls)
+        _m, tmp_list = get_parenthetic_contents(i + 4, tls)
         for i, x in enumerate(tmp_list):
             if 'resid' in x:
                 n1, n2 = get_range_ph(chain_range, tmp_list[i + 1])
@@ -891,7 +891,7 @@ def tlsxc_origin(pdbfile, info):
 
 
 ##########################################################
-def calc_tlsxc(nxyz, id):
+def calc_tlsxc(nxyz, id):  # pylint: disable=redefined-builtin
     ''' get the center of coordinate (refmac) and center of mass (phenix)
 
     '''
@@ -1223,7 +1223,7 @@ def get_tlsinp(pdbfile):
                 break
             n = n + 1
             if n == 1:
-                chain, chain_range, chain1, chain_range1, chain2, chain_range2 = chain_res_range(pdbfile)
+                _chain, chain_range, _chain1, _chain_range1, _chain2, _chain_range2 = chain_res_range(pdbfile)
             range1 = convert_range_phenix_to_refmac(ln, chain_range)
             for k, v in range1.items():
                 for x in v:
@@ -1319,7 +1319,7 @@ def get_tlsinp(pdbfile):
 
 
 ##########################################################
-def get_one_string_after_id(line, id):
+def get_one_string_after_id(line, id):  # pylint: disable=redefined-builtin
     """ get one value after a given id """
 
     if id not in line:
@@ -1584,7 +1584,7 @@ def correct_tls(pdbfile):
 
                 if tmp[0] not in range1.keys() and tmp[0] != ' ':
                     range1[tmp[0]] = []
-                range1[tmp[0]].append([int(eval(tmp[1])), int(eval(tmp[3]))])
+                range1[tmp[0]].append([int(eval(tmp[1])), int(eval(tmp[3]))])  # pylint: disable=eval-used
                 line = correct_tls_overlap(pdbfile, line, range1)
                 if len(line) > 0:
                     line = correct_tls_overlap(pdbfile, line, range1)
@@ -1671,7 +1671,7 @@ def separate_pdb(pdbfile):
 
 
 ##########################################################
-def chain_res(pdbfile, id):
+def chain_res(pdbfile, id):  # pylint: disable=redefined-builtin
     '''use dic to contain chain-ID and residue range
     id=0: not include waters; id=1: include waters.
     '''
@@ -1712,9 +1712,9 @@ def chain_res(pdbfile, id):
 
 
 ##########################################################
-def correct_tls_overlap(pdbfile, line, range):
+def correct_tls_overlap(pdbfile, line, range):  # pylint: disable=unused-argument,redefined-builtin
     tmp = line.split(':')[1].split()
-    ch, n1, n2 = tmp[0], int(eval(tmp[1])), int(eval(tmp[3]))  # from current line
+    ch, n1, n2 = tmp[0], int(eval(tmp[1])), int(eval(tmp[3]))  # from current line # pylint: disable=eval-used
     n = 0
     ln = line
     # print(ch, range[ch])
@@ -1759,13 +1759,13 @@ def correct_residue_range(ntls, pdbfile, line, res_range):
 
     res = line[29:].split()
     nr = len(res)
-    ch1, _n1, ch2, _n2 = (' ', 0, ' ', 0)  # noqa: F841
+    ch1 = ' '
 
     if 'NULL' in line or nr < 2:
         print(pdbfile + '; Error: wrong residue range(%s).' % line[29:].strip())
 
     elif (nr == 4):  # most common cases
-        ch1 = _ch2 = res[0]  # noqa: F841
+        ch1 = res[0]  # noqa: F841
         if res[0] != res[2]:
             print(pdbfile + '; Error: wrong residue range(%s).\n' % line[29:].strip())
 
@@ -1773,7 +1773,7 @@ def correct_residue_range(ntls, pdbfile, line, res_range):
             line1 = correct_range(pdbfile, res[1], res[3], line, ch1, res_range)
 
     elif (nr == 3):
-        ch1 = _ch2 = res[0]  # noqa: F841
+        ch1 = res[0]  # noqa: F841
 
         line1 = correct_range(pdbfile, res[1], res[2], line, ch1, res_range)
         t = 'Warning: residue range correction(%s)->(%s).\n' % (line[29:55].strip(), line1[29:55].strip())
@@ -1804,7 +1804,7 @@ def correct_residue_range(ntls, pdbfile, line, res_range):
 
 
 ##########################################################
-def correct_default(line1, line, chain_range, pdbfile):
+def correct_default(line1, line, chain_range, pdbfile):  # pylint: disable=unused-argument
     for x, y in chain_range.items():
         rrange = '%4s%6d%9s%6d' % (x, y[0], x, y[1])
         tmp = line[:29] + rrange + '   \n'
@@ -1915,7 +1915,7 @@ def check_res_range(pdbfile, ln, chain, ch, n1, n2, idd):
 
 
 ##########################################################
-def make_two_newline(pdbfile, resn_in, ln, ch, n1, n2, idd):
+def make_two_newline(pdbfile, resn_in, ln, ch, n1, n2, idd):  # pylint: disable=unused-argument
 
     resn = sorted(resn_in)
     # print(resn, ch, n1, n2, idd)
@@ -1935,7 +1935,7 @@ def make_two_newline(pdbfile, resn_in, ln, ch, n1, n2, idd):
 
 
 ##########################################################
-def make_new_line(pdbfile, ln, ch, n1, n2, idd):
+def make_new_line(pdbfile, ln, ch, n1, n2, idd):  # pylint: disable=unused-argument
     ''' return a new line with correct residue ranges.
     id==1, corrected. idd==0, original
     '''

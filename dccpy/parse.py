@@ -23,7 +23,7 @@ def parse_cif(flist, table):
             dic = {'monid': monid, 'nseq': nseq, 'asym': asym, 'chid': chid, 'ins': ins}
 
     elif ciftable == '_struct_conn.':
-        id = cif.parse_values(items, values, '_struct_conn.id')
+        id = cif.parse_values(items, values, '_struct_conn.id')  # pylint: disable=redefined-builtin
         asym1 = cif.parse_values(items, values, '_struct_conn.ptnr1_auth_asym_id')
         comp1 = cif.parse_values(items, values, '_struct_conn.ptnr1_auth_comp_id')
         nseq1 = cif.parse_values(items, values, '_struct_conn.ptnr1_auth_seq_id')
@@ -238,7 +238,7 @@ def sfcheck_log(inpfile, dd, detail):
 
 
 ##########################################################
-def sfcheck_cif(inpfile, dd, detail):
+def sfcheck_cif(inpfile, dd, detail):  # pylint: disable=unused-argument
 
     if not util.check_file(100, inpfile):
         return
@@ -507,7 +507,7 @@ def model_vs_data_v13_log(infile, dic1, dic):
 
 
 ##########################################################
-def get_dcc_avg(fr, id):
+def get_dcc_avg(fr, id):  # pylint: disable=redefined-builtin
     ''' get the average Biso, Occ, CC for atom list
     Reorganize the cif list
     '''
@@ -841,7 +841,7 @@ def pointless_log(logfile, dic):
 
 
 ##########################################################
-def parse_table(alist, table, id):
+def parse_table(alist, table, id):  # pylint: disable=redefined-builtin
     '''parse the table in the DCC:  flist is a list
     id=0, input file; id=1. input list
     '''
@@ -928,7 +928,7 @@ def parse_dcc(flist, table):
 
 
 ##########################################################
-def get_rsr_database(res, rfact, file):
+def get_rsr_database(res, rfact, file):  # pylint: disable=unused-argument
     '''parse the mean and dev of the RsR for the res range for each
     residue.
     '''
@@ -953,9 +953,9 @@ def get_rsr_database(res, rfact, file):
     num_fil = cif.parse_values(items, values, "_rsr_shell.number_filter")
 
     resn = {}
-    for i, x in enumerate(resname):
+    for i, _x in enumerate(resname):
         # if float(resh[i]) <=res <= float(resl[i]):
-        id = '%s_%s' % (resname[i], sst[i])
+        id = '%s_%s' % (resname[i], sst[i])  # pylint: disable=redefined-builtin
         # if float(resh[i]) <= res <= float(resl[i]) and float(rfl[i]) <= rfact <= float(rfh[i]):
         if float(resh[i]) <= res <= float(resl[i]):
             t = [float(mean_all[i]), float(dev_all[i]), int(num_all[i]),
