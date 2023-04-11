@@ -5,9 +5,8 @@
 
 ##########################################################
 def xplo2d():
-    '''the input to generate script input
-    '''
-    inp = '''auto
+    """the input to generate script input"""
+    inp = """auto
 N
 N
 N
@@ -20,24 +19,23 @@ INSERT pdb file here
 N
 N
 QUIT
-'''
-    
-    out = 'xplo2d.inp'
+"""
+
+    out = "xplo2d.inp"
     fw = open(out, "w")
     fw.write("%s" % inp)
     fw.close()
 
     return out
-    
+
 
 ##########################################################
 
 
 def generate():
-    '''the input to generate the generate.inp
-    '''
-    
-    inp = '''{+ file: generate_easy.inp +}
+    """the input to generate the generate.inp"""
+
+    inp = """{+ file: generate_easy.inp +}
 {+ directory: general +}
 {+ description: Generate coordinate and structure file for simple models +}
 {+ comment:
@@ -736,10 +734,10 @@ $seg1.$counter[a4] $res1.$counter[a4] to $seg2.$counter[a4] $res2.$counter[a4]
  end if
 
  stop
-'''
+"""
 
-    out = 'generate.inp'
-    fw = open(out, 'w')
+    out = "generate.inp"
+    fw = open(out, "w")
     fw.write("%s" % inp)
     fw.close()
     return out
@@ -747,8 +745,7 @@ $seg1.$counter[a4] $res1.$counter[a4] to $seg2.$counter[a4] $res2.$counter[a4]
 
 #########################################################
 def model_stat():
-    
-    inp = '''{+ file: model_stats.inp +}
+    inp = """{+ file: model_stats.inp +}
 {+ directory: xtal_refine +}
 {+ description: Crystallographic model statistics +}
 {+ authors: Axel T. Brunger, and Paul D. Adams +}
@@ -2306,8 +2303,8 @@ def model_stat():
  display ==============================================================================
 
  stop
-'''
-    out = 'model_stat.inp'
+"""
+    out = "model_stat.inp"
     fw = open(out, "w")
     fw.write("%s" % inp)
     fw.close()

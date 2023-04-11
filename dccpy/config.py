@@ -1,28 +1,29 @@
 import os
+
 # ===========================================================
 # this module is only used as a global variable
 # ===========================================================
-PATH1 = ''  # for CGI, give full path for sfcheck, sf_convert
-PATH2 = ''  # only for CGI, give full path for lx_mapman, shelx,
-PATH3 = ''  # contains database of RsR for each residue and resolution
-PATH4 = ''  # contains the src
-if 'DCCPY' in os.environ:
-    PATH1 = os.environ['DCCPY'] + '/bin/'
-    PATH2 = os.environ['DCCPY'] + '/other_bin/'
-    PATH3 = os.environ['DCCPY'] + '/data/'
-    PATH4 = os.environ['DCCPY'] + '/dccpy/'
+PATH1 = ""  # for CGI, give full path for sfcheck, sf_convert
+PATH2 = ""  # only for CGI, give full path for lx_mapman, shelx,
+PATH3 = ""  # contains database of RsR for each residue and resolution
+PATH4 = ""  # contains the src
+if "DCCPY" in os.environ:
+    PATH1 = os.environ["DCCPY"] + "/bin/"
+    PATH2 = os.environ["DCCPY"] + "/other_bin/"
+    PATH3 = os.environ["DCCPY"] + "/data/"
+    PATH4 = os.environ["DCCPY"] + "/dccpy/"
 
 ERRLOG = []  # contains all the error/warning messages
 
-VERSION = '2.26  (2020-01-20)'
+VERSION = "2.27  (2023-04-10)"
 
 # ===================Some pre-defined messages =====================#
-DCC = 'A wrapper of crystallographic applications'
-VALID_REP = 'refinement program reported in coordinate file.'
-VALID_CAL = 'model vs diffraction data validation (program used by DCC).'
-RSR = 'calculate density metrics such as RsR/RSCC/RSRZ'
-DATA = 'check structure factor quality'
-SF_FMT = 'convert structure factor format'
+DCC = "A wrapper of crystallographic applications"
+VALID_REP = "refinement program reported in coordinate file."
+VALID_CAL = "model vs diffraction data validation (program used by DCC)."
+RSR = "calculate density metrics such as RsR/RSCC/RSRZ"
+DATA = "check structure factor quality"
+SF_FMT = "convert structure factor format"
 
 # ====================modifications below ==========================#
 
@@ -151,6 +152,7 @@ SF_FMT = 'convert structure factor format'
 # 107. If EDSTATSBINDIR is set, run edstats.pl from there and pass as -exec argument.
 # 108. Correct edstats log file parsing for newer version of edstats
 # 109. Python 3 compatibility (12/31/2019)
+# 110. Code cleanup. For Phenix, if PDBx/mmCIF provided, use it. (04/10/2023)
 #
 # Examples:
 # (Note: '-pdbid id'  is the same as '-pdb pdbfile -sf sffile')

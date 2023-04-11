@@ -8,30 +8,30 @@ import util
 
 ##################################################################
 def matthew_coeff_atom(file):
-    '''calculate Matthew_coeff and solvent content: file is in pdb format;
-       A simplyfied version : only use atom mass in cell.
-    '''
+    """calculate Matthew_coeff and solvent content: file is in pdb format;
+    A simplyfied version : only use atom mass in cell.
+    """
 
     if not util.check_file(100, file):
-        print('Error: file (%s) not exist' % file)
+        print("Error: file (%s) not exist" % file)
         return 0, 0
 
-    fp = open(file, 'r')
+    fp = open(file, "r")
 
     cell = [1, 1, 1, 1, 1, 1]
-    amass, nop, nmat, sym = 0, 0, 1, 'X'
+    amass, nop, nmat, sym = 0, 0, 1, "X"
 
     for x in fp:
-        if 'REMARK 290 ' in x[:12] and '555' in x and ',' in x[23:32]:
+        if "REMARK 290 " in x[:12] and "555" in x and "," in x[23:32]:
             nop = nop + 1
-        elif 'MTRIX3' in x[:6] and '1' not in x[55:].strip():
+        elif "MTRIX3" in x[:6] and "1" not in x[55:].strip():
             nmat = nmat + 1
-        elif 'CRYST1' in x[:6]:
+        elif "CRYST1" in x[:6]:
             c = x[7:54].split()
             cell = [float(y) for y in c]
             sym = x[54:65].strip()
 
-        elif ('ATOM' in x[:4]):
+        elif "ATOM" in x[:4]:
             occ = float(x[54:60])
             amass = amass + util.atom_mass(x[76:78].strip()) * occ
 
@@ -41,7 +41,7 @@ def matthew_coeff_atom(file):
 
     nsym = util.sg_nsym(sym)
     if nsym == -1:
-        print('Error: space group (%s) is not in the list (%s)' % (sym, file))
+        print("Error: space group (%s) is not in the list (%s)" % (sym, file))
         nsym = nop
 
     matt, solv = calc_matt(cell_vol, amass, nsym, nmat, 1)  # by atom, occ
@@ -51,23 +51,22 @@ def matthew_coeff_atom(file):
 
 ##################################################################
 def matthew_coeff(file):
-    '''calculate Matthew_coeff and solven content: file is in pdb format;
-    '''
+    """calculate Matthew_coeff and solven content: file is in pdb format;"""
 
     if not util.check_file(100, file):
-        print('Error: file (%s) not exist' % file)
+        print("Error: file (%s) not exist" % file)
         return 0, 0
 
-    fp = open(file, 'r')
+    fp = open(file, "r")
 
     cell = [1, 1, 1, 1, 1, 1]
-    spt, nop, nmat, sym, res, atom = 1, 0, 1, 'X', [], []
+    spt, nop, nmat, sym, res, atom = 1, 0, 1, "X", [], []
     rmass, amass, armass = 0, 0, 0
-    hetres, aname, rest = [], [], ''
+    hetres, aname, rest = [], [], ""
     for x in fp:
-        if 'REMARK 290 ' in x[:12] and '555' in x and ',' in x[23:32]:
+        if "REMARK 290 " in x[:12] and "555" in x and "," in x[23:32]:
             nop = nop + 1
-        elif 'SEQRES' in x[:6]:
+        elif "SEQRES" in x[:6]:
             t = x[17:79].split()
             res.extend(t)
 
@@ -75,15 +74,14 @@ def matthew_coeff(file):
             #    t=x[6:].split()
             #    spt=len(t)
 
-        elif 'MTRIX3' in x[:6] and '1' not in x[55:].strip():
+        elif "MTRIX3" in x[:6] and "1" not in x[55:].strip():
             nmat = nmat + 1
-        elif 'CRYST1' in x[:6]:
+        elif "CRYST1" in x[:6]:
             c = x[7:54].split()
             cell = [float(y) for y in c]
             sym = x[54:65].strip()
 
-        elif ('ATOM' in x[:4]):
-
+        elif "ATOM" in x[:4]:
             atom.append(x)
             occ = float(x[54:60])
             amass = amass + util.atom_mass(x[76:78].strip()) * occ
@@ -92,7 +90,6 @@ def matthew_coeff(file):
             aname.append(x[76:78].strip())
 
             if t != rest:
-
                 comp = t[:3].strip()
                 restmp = util.residue_mass(comp)
                 if restmp < 1:
@@ -103,7 +100,7 @@ def matthew_coeff(file):
                 rest = t
                 aname = []
 
-        elif 'ENDMDL' in x[:6]:
+        elif "ENDMDL" in x[:6]:
             break
     fp.close()
 
@@ -111,7 +108,7 @@ def matthew_coeff(file):
 
     nsym = util.sg_nsym(sym)
     if nsym == -1:
-        print('Error: space group (%s) is not in the list (%s)' % (sym, file))
+        print("Error: space group (%s) is not in the list (%s)" % (sym, file))
         nsym = nop
     # ----------
 
@@ -128,7 +125,7 @@ def matthew_coeff(file):
 
     amatt, asolv = calc_matt(cell_vol, amass, nsym, nmat, spt)  # by atom, occ
     rmatt, rsolv = calc_matt(cell_vol, rmass, nsym, nmat, spt)  # by SEQRES
-    armatt, arsolv = calc_matt(cell_vol, armass , nsym, nmat, spt)  # residue
+    armatt, arsolv = calc_matt(cell_vol, armass, nsym, nmat, spt)  # residue
 
     matt, solv = -1, -1
 
@@ -147,9 +144,9 @@ def matthew_coeff(file):
 
 ##########################################################
 def non_standard_res(res, atom):
-    '''mass of none standard residues are calculated by each atoms
+    """mass of none standard residues are calculated by each atoms
     in the atom list.
-    '''
+    """
 
     amass, n = 0, 0
     for i, x in enumerate(atom):
@@ -163,10 +160,10 @@ def non_standard_res(res, atom):
 
 
 ##########################################################
-def calc_matt(cell_vol, mass, nsym, nmat, spt) :
-    '''cell_vol: cell volume; mass: mass in ASU;
+def calc_matt(cell_vol, mass, nsym, nmat, spt):
+    """cell_vol: cell volume; mass: mass in ASU;
     nsym: symmetry operators;  nmat: number of matrix; spt: number of split
-    '''
+    """
 
     if mass < 1 or cell_vol < 2:
         return 0, 0
@@ -180,7 +177,7 @@ def calc_matt(cell_vol, mass, nsym, nmat, spt) :
         mass = mass * nmat
 
     matt, solv = 0, 1
-    if (cell_vol > 10 and mass > 10):
+    if cell_vol > 10 and mass > 10:
         matt = cell_vol / mass
         solv = (1.0 - 1.239 / matt) * 100.0
 
@@ -189,16 +186,19 @@ def calc_matt(cell_vol, mass, nsym, nmat, spt) :
 
 ##########################################################
 def cell_volume(cell):
-    '''volume of cell.
-    '''
+    """volume of cell."""
 
     alpha = 3.14159 * cell[3] / 180
     beta = 3.14159 * cell[4] / 180
     gamma = 3.14159 * cell[5] / 180
 
-    cell_vol = cell[0] * cell[1] * cell[2] * \
-        math.sqrt(1. - math.cos(alpha) * math.cos(alpha)
-                  - math.cos(beta) * math.cos(beta) - math.cos(gamma) * math.cos(gamma)
-                  + 2.0 * math.cos(alpha) * math.cos(beta) * math.cos(gamma))
+    cell_vol = (
+        cell[0]
+        * cell[1]
+        * cell[2]
+        * math.sqrt(
+            1.0 - math.cos(alpha) * math.cos(alpha) - math.cos(beta) * math.cos(beta) - math.cos(gamma) * math.cos(gamma) + 2.0 * math.cos(alpha) * math.cos(beta) * math.cos(gamma)
+        )
+    )
 
     return cell_vol
