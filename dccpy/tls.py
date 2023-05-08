@@ -20,11 +20,11 @@ def check_tls(pdb, id):  # pylint: disable=redefined-builtin
     fp = pdb
     if id == 0 and os.path.exists(pdb):
         fp = open(pdb, "r").readlines()
-    tls, pdbn = remove_pdb_item(fp, 1, "tls")
+    tls, pdbn = _remove_pdb_item(fp, 1, "tls")
     if len(tls) < 15:
         return
 
-    chain, ch_range = chain_res_list(pdbn, 1)
+    chain, ch_range = _chain_res_list(pdbn, 1)
     ntls, prog = "?", "?"
     all_range = []  # [['ch', ni, nf, ntls] ...] ni/nf=first/last residue number
     prog = os.popen('grep "REMARK   3   PROGRAM     :" -m 1  %s' % pdb).read().split(":")[1].strip()
@@ -41,16 +41,16 @@ def check_tls(pdb, id):  # pylint: disable=redefined-builtin
         elif ("REMARK   3    RESIDUE RANGE :" in x[:29]) or ("REMARK   3    SELECTION:" in x[:29] and "buster" in prog.lower() and "{" not in x[20:]):
             if "SELECTION:" in x:  # buster changed set to  SELECTION
                 xx = "REMARK   3    RESIDUE RANGE :" + x[24:48]
-                t = parse_tls_range_refmac(xx, ntls)
+                t = _parse_tls_range_refmac(xx, ntls)
             else:  # refmac
-                t = parse_tls_range_refmac(x, ntls)
+                t = _parse_tls_range_refmac(x, ntls)
             t.append(ntls)
             all_range.append(t)
             # print 'from refmac=',  t
 
         elif "REMARK   3    SELECTION:" in x[:29] and "phenix" in prog.lower():  # phenix,
-            tls_str = tls_selection_one_string(tls, i, 25)
-            t = parse_tls_range_phenix(tls_str, ntls, chain, ch_range, fp)
+            tls_str = _tls_selection_one_string(tls, i, 25)
+            t = _parse_tls_range_phenix(tls_str, ntls, chain, ch_range, fp)
 
             for y in t:
                 y.append(ntls)
@@ -58,8 +58,8 @@ def check_tls(pdb, id):  # pylint: disable=redefined-builtin
             # print 'from phenix=', t
 
         elif "REMARK   3    SET :" in x[:20] or "SELECTION: {" in x[11:29]:  # buster in original format  # buster in modified format
-            tls_str = tls_selection_one_string(tls, i, 20)
-            t = parse_tls_range_buster(tls_str, ntls, chain, ch_range)
+            tls_str = _tls_selection_one_string(tls, i, 20)
+            t = _parse_tls_range_buster(tls_str, ntls, chain, ch_range)
             for y in t:
                 y.append(ntls)
                 all_range.append(y)
@@ -85,13 +85,13 @@ def check_tls(pdb, id):  # pylint: disable=redefined-builtin
             t1 = "Warning: residue number (%d) is not in coordinate. TLS group=%d." % (n2, nt)
             perror(t1)
 
-    check_residue_range(all_range)
+    _check_residue_range(all_range)
     if id == 0:
-        tlsxc_origin(pdb, 0)  # check TLS origin, only pdbfile and refmac
+        _tlsxc_origin(pdb, 0)  # check TLS origin, only pdbfile and refmac
 
 
 ##########################################################
-def check_residue_range(all_range):
+def _check_residue_range(all_range):
     """check residue range overlap :
     four type of overlaps for residue ranges (n1, n2) and (k1, k2)
     (n1, k1, k2, n2;   k1, n1, n2, k2;  n1, k1, n2, k2;   k1, n1, k2, n2;)
@@ -117,7 +117,7 @@ def check_residue_range(all_range):
 
 
 ##########################################################
-def remove_pdb_item(fp_inp, id, item):  # pylint: disable=redefined-builtin
+def _remove_pdb_item(fp_inp, id, item):  # pylint: disable=redefined-builtin
     """
     id=0, fp is a pdbfile & return a pdb file;
     id=1, fp is a list of pdb & return two lists
@@ -158,7 +158,7 @@ def remove_pdb_item(fp_inp, id, item):  # pylint: disable=redefined-builtin
 
 
 ##########################################################
-def chain_res_list(fr, id):  # pylint: disable=redefined-builtin
+def _chain_res_list(fr, id):  # pylint: disable=redefined-builtin
     """use dic to contain chain-ID and residue range, pdb is a list.
     id=0: not include waters; id=1: include waters.
     """
@@ -198,7 +198,7 @@ def chain_res_list(fr, id):  # pylint: disable=redefined-builtin
 
 
 ##########################################################
-def parse_tls_range_refmac(x, ntls):
+def _parse_tls_range_refmac(x, ntls):
     """parse refmac tls range; return (ch,nres1,nres2) return none if bad!"""
 
     res = []
@@ -219,7 +219,7 @@ def parse_tls_range_refmac(x, ntls):
 
 
 ##########################################################
-def get_residue_range_from_resname(ch, res, fp):
+def _get_residue_range_from_resname(ch, res, fp):
     rng = []
     for x in fp:
         if ("ATOM" in x[:4] or "HETA" in x[:4]) and (ch == x[20:22].strip() and res == x[17:20].lower()):
@@ -235,17 +235,17 @@ def get_residue_range_from_resname(ch, res, fp):
 
 
 ##########################################################
-def parse_tls_range_phenix_special(tls, chain, chain_range, fp):  # pylint: disable=unused-argument
+def _parse_tls_range_phenix_special(tls, chain, chain_range, fp):  # pylint: disable=unused-argument
     """It involves in resname : for temp use. Modify later!"""
 
     range = []  # pylint: disable=redefined-builtin
     for i, _x in enumerate(tls):
-        if pattern(i, tls, "chain", "?", "and", "resname"):
+        if _pattern(i, tls, "chain", "?", "and", "resname"):
             ch, resname = tls[2], tls[i + 4]
-            range_t = get_residue_range_from_resname(ch, resname, fp)
+            range_t = _get_residue_range_from_resname(ch, resname, fp)
             range.append(range_t)
             # print 'Got it  %s %s ' %(ch, resname), tls
-        elif pattern(i, tls, "(", "chain", "?", "or"):
+        elif _pattern(i, tls, "(", "chain", "?", "or"):
             chs = []
             tlstmp = tls[i:]
             for j, y in enumerate(tlstmp):
@@ -254,7 +254,7 @@ def parse_tls_range_phenix_special(tls, chain, chain_range, fp):  # pylint: disa
                 if "resname" in y and "(" not in tlstmp[j + 1]:
                     resname = tlstmp[j + 1]
                     for c in chs:
-                        range_t = get_residue_range_from_resname(c, resname, fp)
+                        range_t = _get_residue_range_from_resname(c, resname, fp)
                         range.append(range_t)
                     break
     print("Special range=%s" % range)
@@ -262,7 +262,7 @@ def parse_tls_range_phenix_special(tls, chain, chain_range, fp):  # pylint: disa
 
 
 ##########################################################
-def parse_tls_range_phenix(tlsn_in, ng, chain, chain_range, fp):
+def _parse_tls_range_phenix(tlsn_in, ng, chain, chain_range, fp):
     """tlsn: all the tls range as one string. ng: the tls group number
     chain:  chainID with a list of residue number.
     chain_range: chainID with tls residual range.
@@ -293,7 +293,7 @@ def parse_tls_range_phenix(tlsn_in, ng, chain, chain_range, fp):
             tls.append(t)
 
     if "resname" in tls:
-        return parse_tls_range_phenix_special(tls, chain, chain_range, fp)
+        return _parse_tls_range_phenix_special(tls, chain, chain_range, fp)
 
     nn = len(tls)
     for i, x in enumerate(tls):  # error detect
@@ -327,16 +327,16 @@ def parse_tls_range_phenix(tlsn_in, ng, chain, chain_range, fp):
             for y in chain_range.keys():
                 tls_range.append([y, chain_range[y][0], chain_range[y][1]])
 
-        elif pattern(i, tls, "chain", "?", "and", "not", "resid"):
+        elif _pattern(i, tls, "chain", "?", "and", "not", "resid"):
             ch = tls[i + 1]
             if ch in chain.keys():
-                tt = parse_tls_phenix_not(i, ch, tls, chain[ch], chain_range, 0)
+                tt = _parse_tls_phenix_not(i, ch, tls, chain[ch], chain_range, 0)
                 tls_range.extend(tt)
 
-        elif pattern(i, tls, "chain", "?", "and", "not", "(", "resid"):
+        elif _pattern(i, tls, "chain", "?", "and", "not", "(", "resid"):
             ch = tls[i + 1]
             if ch in chain.keys():
-                tt = parse_tls_phenix_not(i, ch, tls, chain[ch], chain_range, 1)
+                tt = _parse_tls_phenix_not(i, ch, tls, chain[ch], chain_range, 1)
                 tls_range.extend(tt)
 
         elif "chain" in x and i < nn - 1:
@@ -345,17 +345,17 @@ def parse_tls_range_phenix(tlsn_in, ng, chain, chain_range, fp):
             if chid not in chain_range.keys():
                 continue
 
-            # elif (pattern(i, tls, 'chain', '?') and (nn==2 or nn==4)) : #one chain
+            # elif (_pattern(i, tls, 'chain', '?') and (nn==2 or nn==4)) : #one chain
             elif (
-                pattern(i, tls, "chain", "?", "or")
-                or pattern(i, tls, "chain", "?", ")", "or")
-                or (pattern(i, tls, "chain", "?") and i > nn - 3)
-                or pattern(i, tls, "chain", "?", ")")
+                _pattern(i, tls, "chain", "?", "or")
+                or _pattern(i, tls, "chain", "?", ")", "or")
+                or (_pattern(i, tls, "chain", "?") and i > nn - 3)
+                or _pattern(i, tls, "chain", "?", ")")
             ):  # one chain
                 n1, n2 = chain_range[chid][0], chain_range[chid][1]
                 tls_range.append([chid, n1, n2])
 
-            elif pattern(i, tls, "chain", "?", "or", "chain", "?"):  # two chain
+            elif _pattern(i, tls, "chain", "?", "or", "chain", "?"):  # two chain
                 n1, n2 = chain_range[chid][0], chain_range[chid][1]
                 tls_range.append([chid, n1, n2])
 
@@ -365,53 +365,53 @@ def parse_tls_range_phenix(tlsn_in, ng, chain, chain_range, fp):
                 n1, n2 = chain_range[ch2][0], chain_range[ch2][1]
                 tls_range.append([ch2, n1, n2])
 
-            elif i < nn - 4 and (pattern(i, tls, "chain", "?", "and", "res")):
-                n1, n2 = get_range_ph(chain_range[chid], tls[i + 4])
+            elif i < nn - 4 and (_pattern(i, tls, "chain", "?", "and", "res")):
+                n1, n2 = _get_range_ph(chain_range[chid], tls[i + 4])
                 tls_range.append([chid, n1, n2])
 
-            elif pattern(i, tls, "chain", "?", "and", "(", "res"):
-                get_range_phe(ng, chid, i + 4, 1, chain_range, tls, tls_range)
+            elif _pattern(i, tls, "chain", "?", "and", "(", "res"):
+                _get_range_phe(ng, chid, i + 4, 1, chain_range, tls, tls_range)
 
-            elif pattern(i, tls, "chain", "?", "and", "(", "(", "res"):
-                get_range_phe(ng, chid, i + 5, 2, chain_range, tls, tls_range)
+            elif _pattern(i, tls, "chain", "?", "and", "(", "(", "res"):
+                _get_range_phe(ng, chid, i + 5, 2, chain_range, tls, tls_range)
 
-        elif i == 0 and pattern(i, tls, "res", "?", "and", "chain", "?"):
+        elif i == 0 and _pattern(i, tls, "res", "?", "and", "chain", "?"):
             chid = tls[i + 4]
             if chid not in chain_range.keys():
                 continue
-            n1, n2 = get_range_ph(chain_range[chid], tls[i + 1])
+            n1, n2 = _get_range_ph(chain_range[chid], tls[i + 1])
             tls_range.append([chid, n1, n2])
 
-        elif i == 0 and pattern(i, tls, "(", "res", "?", ")", "and", "chain", "?"):
+        elif i == 0 and _pattern(i, tls, "(", "res", "?", ")", "and", "chain", "?"):
             chid = tls[i + 6]
             if chid not in chain_range.keys():
                 continue
 
-            n1, n2 = get_range_ph(chain_range[chid], tls[i + 2])
+            n1, n2 = _get_range_ph(chain_range[chid], tls[i + 2])
             tls_range.append([chid, n1, n2])
 
-        elif i == 0 and pattern(i, tls, "(", "res", "?", "or", "res", "?") and pattern(8, tls, "chain", "?"):
+        elif i == 0 and _pattern(i, tls, "(", "res", "?", "or", "res", "?") and _pattern(8, tls, "chain", "?"):
             chid = tls[tls.index("chain") + 1]
             if chid not in chain_range.keys():
                 continue
-            get_range_phe(ng, chid, i + 0, 1, chain_range, tls, tls_range)
+            _get_range_phe(ng, chid, i + 0, 1, chain_range, tls, tls_range)
 
-        elif pattern(i, tls, "res") and "chain" not in tls:
+        elif _pattern(i, tls, "res") and "chain" not in tls:
             if len(chain_range.keys()) > 1:
                 t = "Error: wrong residue selection, no chain identifer (tls group=%s)." % (ng)
                 perror(t)
             else:
                 chid = list(chain_range.keys())[0]
-                n1, n2 = get_range_ph(chain_range[chid], tls[i + 1])
+                n1, n2 = _get_range_ph(chain_range[chid], tls[i + 1])
                 tls_range.append([chid, n1, n2])
 
-    check_parsed_tls_ranges(tls_range, chain, ng)
+    _check_parsed_tls_ranges(tls_range, chain, ng)
 
     return tls_range
 
 
 ##########################################################
-def check_parsed_tls_ranges(tls_range, chain, ng):
+def _check_parsed_tls_ranges(tls_range, chain, ng):
     if not len(tls_range):
         t = "Error: failed to parse residue range (TLS group=%s)." % ng
         perror(t)
@@ -433,7 +433,7 @@ def check_parsed_tls_ranges(tls_range, chain, ng):
 
 
 ##########################################################
-def tls_selection_one_string(fp, i, nc):
+def _tls_selection_one_string(fp, i, nc):
     """fp: a list;  i: the position for SELECTION; nc, start column of range.
     return a string for this selection.
     """
@@ -453,8 +453,8 @@ def tls_selection_one_string(fp, i, nc):
 
 
 ##########################################################
-def pattern(i, tls, *ss):
-    """the pattern of TLS after position i.  ss is a list of input"""
+def _pattern(i, tls, *ss):
+    """the _pattern of TLS after position i.  ss is a list of input"""
 
     key, nn = 1, len(tls)
 
@@ -472,7 +472,7 @@ def pattern(i, tls, *ss):
 
 
 ##########################################################
-def parse_tls_phenix_not(i, ch, tls, chain, chain_range, id):  # pylint: disable=redefined-builtin
+def _parse_tls_phenix_not(i, ch, tls, chain, chain_range, id):  # pylint: disable=redefined-builtin
     """parse tls range involve NOT;
     id=0 for style 'chain F and not resid 0'
     id=1 for style 'chain F and not  not (resseq 539:581 or ..)'
@@ -483,14 +483,14 @@ def parse_tls_phenix_not(i, ch, tls, chain, chain_range, id):  # pylint: disable
     chain_new = chain
 
     if id == 0:
-        n1, n2 = get_range_ph(chain_range, tls[i + 5])
+        n1, n2 = _get_range_ph(chain_range, tls[i + 5])
         chain_range_not.append([n1, n2])
 
     else:
-        _m, tmp_list = get_parenthetic_contents(i + 4, tls)
+        _m, tmp_list = _get_parenthetic_contents(i + 4, tls)
         for i, x in enumerate(tmp_list):
             if "resid" in x:
-                n1, n2 = get_range_ph(chain_range, tmp_list[i + 1])
+                n1, n2 = _get_range_ph(chain_range, tmp_list[i + 1])
                 chain_range_not.append([n1, n2])
 
     chain_range_not.sort()
@@ -515,7 +515,7 @@ def parse_tls_phenix_not(i, ch, tls, chain, chain_range, id):  # pylint: disable
 
 
 ##########################################################
-def get_parenthetic_contents(start, lists):
+def _get_parenthetic_contents(start, lists):
     """start:  the start position;  lists: input a list or string
     return the position of last ')' and the contents in ()
     """
@@ -547,7 +547,7 @@ def get_parenthetic_contents(start, lists):
 
 
 ##########################################################
-def get_range_phe(ng, chid, st, nb, chain_range, tls, tls_range):
+def _get_range_phe(ng, chid, st, nb, chain_range, tls, tls_range):
     """st: start point;  nb: number of bracket;  chain_range: {ch:[n1,n2]}
     tls_range: return the value
     """
@@ -559,7 +559,7 @@ def get_range_phe(ng, chid, st, nb, chain_range, tls, tls_range):
             kk = 1
             break
         if ":" in tls[m]:
-            n1, n2 = get_range_ph(chain_range[chid], tls[m])
+            n1, n2 = _get_range_ph(chain_range[chid], tls[m])
             tls_range.append([chid, n1, n2])
 
     if kk == 0:
@@ -568,7 +568,7 @@ def get_range_phe(ng, chid, st, nb, chain_range, tls, tls_range):
 
 
 ##########################################################
-def get_range_ph(chain_range, tls):
+def _get_range_ph(chain_range, tls):
     n1, n2 = -9999, -9999
     if ":" in tls:
         if len(tls.split(":")) == 2:
@@ -597,7 +597,7 @@ def get_range_ph(chain_range, tls):
 
 
 ##########################################################
-def parse_tls_range_buster(tls, ng, chain, chain_range):
+def _parse_tls_range_buster(tls, ng, chain, chain_range):
     """tls: all the tls range as one string.  ng: the tls group number
     chain:  chainID with a list of residue number.
     chain_range: chainID with tls residual range.
@@ -617,7 +617,7 @@ def parse_tls_range_buster(tls, ng, chain, chain_range):
 
         for x in st:
             if "|" in x:
-                tmp = parse_tls_range_buster_1(x, chain_range)
+                tmp = _parse_tls_range_buster_1(x, chain_range)
                 if x[0] == "*":
                     tls_range = tmp
                 else:
@@ -629,7 +629,7 @@ def parse_tls_range_buster(tls, ng, chain, chain_range):
         nn = len(ss)
         for k in range(i, nn):
             if "|" in ss[k] and "*" in ss[k] and nn - k > 1 and "-" not in ss[k + 1]:  # isolate entity
-                tmp = parse_tls_range_buster_1(ss[k], chain_range)
+                tmp = _parse_tls_range_buster_1(ss[k], chain_range)
                 if tmp:
                     tls_range.append(tmp)
                 else:
@@ -637,10 +637,10 @@ def parse_tls_range_buster(tls, ng, chain, chain_range):
                     perror(t)
 
             elif "|" in ss[k] and nn - k > 1 and "-" not in ss[k + 1]:  # isolate entity
-                tmp = parse_tls_range_buster_1(ss[k], chain_range)
+                tmp = _parse_tls_range_buster_1(ss[k], chain_range)
 
             elif "|" in ss[k] and nn - k > 2 and "-" in ss[k + 1]:
-                ch1, res1 = parse_tls_range_buster_2(ss[k])
+                ch1, res1 = _parse_tls_range_buster_2(ss[k])
 
                 if "|" not in ss[k + 2]:
                     if is_number(res1) and is_number(ss[k + 2]):
@@ -650,7 +650,7 @@ def parse_tls_range_buster(tls, ng, chain, chain_range):
                         perror(t)
 
                 else:
-                    ch2, res2 = parse_tls_range_buster_2(ss[k + 2])
+                    ch2, res2 = _parse_tls_range_buster_2(ss[k + 2])
                     if ch1 == ch2 and is_number(res1) and is_number(res2):
                         tls_range.append([ch1, int(res1), int(res2)])
                     else:
@@ -660,24 +660,24 @@ def parse_tls_range_buster(tls, ng, chain, chain_range):
 
             i = i + 1
 
-    check_parsed_tls_ranges(tls_range, chain, ng)
+    _check_parsed_tls_ranges(tls_range, chain, ng)
 
     return tls_range
 
 
 ##########################################################
-def parse_tls_range_buster_2(x):
+def _parse_tls_range_buster_2(x):
     s = x.split("|")
     ch, res = s[0], s[1]
     return ch, res
 
 
 ##########################################################
-def parse_tls_range_buster_1(x, chain_range):
+def _parse_tls_range_buster_1(x, chain_range):
     """parse single items  (A|*,  A|45, A|12-45, A|12-A|45)"""
 
     tmp = []
-    ch, res = parse_tls_range_buster_2(x)
+    ch, res = _parse_tls_range_buster_2(x)
     if "*" in ch and "*" in res:  # all chains
         for k, v in chain_range.items():
             tmp.append([k, v[0], v[1]])
@@ -722,7 +722,7 @@ def parse_tls_range_buster_1(x, chain_range):
 
 
 ##########################################################
-def tlsxc_origin(pdbfile, info):
+def _tlsxc_origin(pdbfile, info):
     """calculate the origin for TLS groups (occupancy weighted)
     refmac & buster: center of coordinate.
     phenix: center of mass
@@ -753,7 +753,7 @@ def tlsxc_origin(pdbfile, info):
         print("Note: No TLS groups are detected in file=(%s)." % pdbfile)
         return
 
-    chain, ch_range = chain_res_list(fp, 1)
+    chain, ch_range = _chain_res_list(fp, 1)
     nxyz, ntls, nph, nref, nbu = [], "?", 0, 0, 0
     for i, x in enumerate(fp):
         if "REMARK" in x[:6] and "BUSTER" in x[24:35]:
@@ -767,12 +767,12 @@ def tlsxc_origin(pdbfile, info):
             if nref == 1 and info == 1:
                 print("\nNOTE: TLS format is REFMAC. Origin is OCC weighted center of coordinate.")
 
-            t = parse_tls_range_refmac(x, ntls)
+            t = _parse_tls_range_refmac(x, ntls)
             if not t:
                 continue
             tmp = [t[0], t[1], t[0], t[2]]
 
-            txyz = get_xyz_tls(tmp, xyz)
+            txyz = _get_xyz_tls(tmp, xyz)
             nxyz.extend(txyz)
 
         elif "REMARK   3    SELECTION:" in x[:29] and "phenix" in prog.lower():  # phenix,
@@ -780,16 +780,16 @@ def tlsxc_origin(pdbfile, info):
             if nph == 1 and info == 1:
                 print("\nNOTE: TLS format is PHENIX. Origin is OCC weighted center of mass.")
 
-            tls_str = tls_selection_one_string(fp, i, 25)
+            tls_str = _tls_selection_one_string(fp, i, 25)
             if not tls_str:
                 continue
-            t = parse_tls_range_phenix(tls_str, ntls, chain, ch_range, fp)
+            t = _parse_tls_range_phenix(tls_str, ntls, chain, ch_range, fp)
 
             for z in t:
                 if len(z) < 3:
                     continue
                 tmp = [z[0], z[1], z[0], z[2]]
-                txyz = get_xyz_tls(tmp, xyz)
+                txyz = _get_xyz_tls(tmp, xyz)
                 nxyz.extend(txyz)
 
         elif ("REMARK   3    SET :" in x[:20]) or ("REMARK   3    SELECTION:" in x[:29] and "buster" in prog.lower()):  # buster
@@ -799,25 +799,25 @@ def tlsxc_origin(pdbfile, info):
                 print("        The origin column size is not the same as phenix & refmac. ")
 
             if "SELECTION:" in x and "{" not in x[20:]:  # buster (tls in phenix/refmac format)
-                t = parse_tls_range_refmac(x, ntls)
+                t = _parse_tls_range_refmac(x, ntls)
                 if not t:
                     continue
                 tmp = [t[0], t[1], t[0], t[2]]
-                txyz = get_xyz_tls(tmp, xyz)
+                txyz = _get_xyz_tls(tmp, xyz)
                 nxyz.extend(txyz)
 
             else:
                 if "{" in x[20:]:
-                    tls_str = tls_selection_one_string(fp, i, 25)
+                    tls_str = _tls_selection_one_string(fp, i, 25)
                 else:
-                    tls_str = tls_selection_one_string(fp, i, 20)
+                    tls_str = _tls_selection_one_string(fp, i, 20)
 
-                t = parse_tls_range_buster(tls_str, ntls, chain, ch_range)
+                t = _parse_tls_range_buster(tls_str, ntls, chain, ch_range)
                 for z in t:
                     if len(z) < 3:
                         continue
                     tmp = [z[0], z[1], z[0], z[2]]
-                    txyz = get_xyz_tls(tmp, xyz)
+                    txyz = _get_xyz_tls(tmp, xyz)
                     nxyz.extend(txyz)
 
         elif "REMARK   3    ORIGIN FOR THE GROUP" in x:
@@ -836,11 +836,11 @@ def tlsxc_origin(pdbfile, info):
             nxc = []
             oxc = [float(y) for y in xc]
             if nref:
-                nxc = calc_tlsxc(nxyz, "refmac")
+                nxc = _calc_tlsxc(nxyz, "refmac")
             elif nph:
-                nxc = calc_tlsxc(nxyz, "phenix")
+                nxc = _calc_tlsxc(nxyz, "phenix")
             elif nbu:
-                nxc = calc_tlsxc(nxyz, "buster")
+                nxc = _calc_tlsxc(nxyz, "buster")
 
             #  print xc, nxc
             if len(nxc) < 1:
@@ -868,7 +868,7 @@ def tlsxc_origin(pdbfile, info):
 
 
 ##########################################################
-def calc_tlsxc(nxyz, id):  # pylint: disable=redefined-builtin
+def _calc_tlsxc(nxyz, id):  # pylint: disable=redefined-builtin
     """get the center of coordinate (refmac) and center of mass (phenix)"""
 
     occup = 0.0
@@ -887,7 +887,7 @@ def calc_tlsxc(nxyz, id):  # pylint: disable=redefined-builtin
         if id.lower() == "phenix":
             atom_mass = 0.0
             if len(ln) > 78:
-                atom_mass = mass_of_atom(ln[76:78].strip())
+                atom_mass = _mass_of_atom(ln[76:78].strip())
             if atom_mass > 0:
                 mass = atom_mass
 
@@ -900,11 +900,11 @@ def calc_tlsxc(nxyz, id):  # pylint: disable=redefined-builtin
 
 
 ##########################################################
-def get_xyz_tls(res, xyz):
+def _get_xyz_tls(res, xyz):
     """input res (ch, range1, ch, range2); xyz coordinates."""
     nxyz = []
     for x in xyz[:]:
-        if not atom_record(x):
+        if not _atom_record(x):
             continue
         if res[0] == x[20:22].strip() and is_number(x[22:26]) and int(res[1]) <= int(x[22:26]) <= int(res[3]):
             nxyz.append(x)
@@ -913,7 +913,7 @@ def get_xyz_tls(res, xyz):
 
 
 ##########################################################
-def atom_record(x):
+def _atom_record(x):
     val = 0
     if "ATOM" in x[:4] or "HETA" in x[:4] or "ANISOU" in x[:6]:
         val = 1
@@ -922,7 +922,7 @@ def atom_record(x):
 
 
 ##########################################################
-def residue(resname):
+def _residue(resname):
     val = 0
     resid = [
         "GLY",
@@ -965,7 +965,7 @@ def residue(resname):
 
 
 ##########################################################
-def mass_of_atom(atom):
+def _mass_of_atom(atom):
     atom_mass = {
         "H": 1.0079,
         "HE": 4.0026,
@@ -1102,7 +1102,7 @@ def proc_tlsanl(pdbfile, outfile):
     print("%s" % (60 * "-"))
     (pdb_tls1, log1, pdb_tls2, log2, tls_inp, tls_new_inp, pdb_0tls, pdb_new, pdb_newb) = ("TMP.LOG",) * 9
 
-    tls = precheck_tls(pdbfile)
+    tls = _precheck_tls(pdbfile)
     if tls == 2:  # phenix
         print("Note:  TLS format is phenix (%s)." % pdbfile)
         return 0
@@ -1110,19 +1110,19 @@ def proc_tlsanl(pdbfile, outfile):
         print("Note:  TLS format is Buster (%s)." % pdbfile)
         return 0
 
-    tls_inp = get_tlsinp(pdbfile)
+    tls_inp = _get_tlsinp(pdbfile)
     pdb_tls1, log1 = "", ""
     if tls == 1:
-        (pdb_tls1, log1) = do_tlsanl(pdbfile, tls_inp, "t", "full")
+        (pdb_tls1, log1) = _do_tlsanl(pdbfile, tls_inp, "t", "full")
 
     if os.path.exists(pdb_tls1) and os.path.getsize(pdb_tls1) > 500:
         shutil.move(pdb_tls1, outfile)
         print("\n%s; TLSANL was successful (use original residue-range).\n" % pdbfile)
     else:
-        pdb_0tls = delete_0_origin(pdbfile)  # remove tls group with 0 origin
-        pdb_new = correct_tls(pdb_0tls)  # do various corrections
-        tls_new_inp = get_tlsinp(pdb_new)  # extract TLS groups into tlsanl
-        (pdb_tls2, log2) = do_tlsanl(pdb_new, tls_new_inp, "t", "full")
+        pdb_0tls = _delete_0_origin(pdbfile)  # remove tls group with 0 origin
+        pdb_new = _correct_tls(pdb_0tls)  # do various corrections
+        tls_new_inp = _get_tlsinp(pdb_new)  # extract TLS groups into tlsanl
+        (pdb_tls2, log2) = _do_tlsanl(pdb_new, tls_new_inp, "t", "full")
 
         if os.path.exists(pdb_tls2) and os.path.getsize(pdb_tls2) > 500:
             shutil.move(pdb_tls2, outfile)
@@ -1159,7 +1159,7 @@ def proc_tlsanl(pdbfile, outfile):
 
 
 ##########################################################
-def precheck_tls(pdbfile):
+def _precheck_tls(pdbfile):
     """pre-check the type of TLS and possible errors"""
 
     wk = 1  # default refmac
@@ -1189,7 +1189,7 @@ def precheck_tls(pdbfile):
 
 
 ##########################################################
-def get_tlsinp(pdbfile):
+def _get_tlsinp(pdbfile):
     """Get TLS input for TLSANL:
     This could be done by tlsextract, but data columns can be connected,
     then TLSANL will fail.
@@ -1212,7 +1212,7 @@ def get_tlsinp(pdbfile):
             fo.write("TLS GROUP : " + ntls + "\n")
 
         elif "RESIDUE RANGE :" in ln:  # for refmac
-            t1 = parse_tls_range_refmac(ln, ntls)
+            t1 = _parse_tls_range_refmac(ln, ntls)
             if len(t1) < 2:
                 continue
             fo.write("RANGE  '%s%4d.' '%s%4d.' ALL\n" % (t1[0], t1[1], t1[0], t1[2]))
@@ -1224,7 +1224,7 @@ def get_tlsinp(pdbfile):
             n = n + 1
             if n == 1:
                 _chain, chain_range, _chain1, _chain_range1, _chain2, _chain_range2 = chain_res_range(pdbfile)
-            range1 = convert_range_phenix_to_refmac(ln, chain_range)
+            range1 = _convert_range_phenix_to_refmac(ln, chain_range)
             for k, v in range1.items():
                 for x in v:
                     arg = "RANGE  '%s%4s.' '%s%4s.' ALL\n" % (k, x[0], k, x[1])
@@ -1241,18 +1241,18 @@ def get_tlsinp(pdbfile):
 
         elif "T11:" in ln and "T22:" in ln:
             # T11, T22 = ln[20:29], ln[34:43]
-            T11 = get_one_string_after_id(ln, "T11:")
-            T22 = get_one_string_after_id(ln, "T22:")
+            T11 = _get_one_string_after_id(ln, "T11:")
+            T22 = _get_one_string_after_id(ln, "T22:")
 
         elif "T33:" in ln and "T12:" in ln:
             # T33, T12 = ln[20:29], ln[34:43]
-            T33 = get_one_string_after_id(ln, "T33:")
-            T12 = get_one_string_after_id(ln, "T12:")
+            T33 = _get_one_string_after_id(ln, "T33:")
+            T12 = _get_one_string_after_id(ln, "T12:")
 
         elif "T13:" in ln and "T23:" in ln:
             # T13, T23 = ln[20:29], ln[34:43]
-            T13 = get_one_string_after_id(ln, "T13:")
-            T23 = get_one_string_after_id(ln, "T23:")
+            T13 = _get_one_string_after_id(ln, "T13:")
+            T23 = _get_one_string_after_id(ln, "T23:")
 
             if "NULL" in T11 + T22 + T33 + T12 + T13 + T23:
                 t = 'Error: "NULL" values in matrix Tij for tls group=%s\n' % ntls
@@ -1263,18 +1263,18 @@ def get_tlsinp(pdbfile):
 
         elif "L11:" in ln and "L22:" in ln:
             # L11, L22 = ln[20:29], ln[34:43]
-            L11 = get_one_string_after_id(ln, "L11:")
-            L22 = get_one_string_after_id(ln, "L22:")
+            L11 = _get_one_string_after_id(ln, "L11:")
+            L22 = _get_one_string_after_id(ln, "L22:")
 
         elif "L33:" in ln and "L12:" in ln:
             # L33, L12 = ln[20:29], ln[34:43]
-            L33 = get_one_string_after_id(ln, "L33:")
-            L12 = get_one_string_after_id(ln, "L12:")
+            L33 = _get_one_string_after_id(ln, "L33:")
+            L12 = _get_one_string_after_id(ln, "L12:")
 
         elif "L13:" in ln and "L23:" in ln:
             # L13, L23 = ln[20:29], ln[34:43]
-            L13 = get_one_string_after_id(ln, "L13:")
-            L23 = get_one_string_after_id(ln, "L23:")
+            L13 = _get_one_string_after_id(ln, "L13:")
+            L23 = _get_one_string_after_id(ln, "L23:")
 
             if "NULL" in L11 + L22 + L33 + L12 + L13 + L23:
                 t = 'Error: "NULL" values in matrix Lij for tls group=%s\n' % ntls
@@ -1286,21 +1286,21 @@ def get_tlsinp(pdbfile):
 
         elif "S11:" in ln and "S12:" in ln and "S13:" in ln:
             # S11, S12, S13 = ln[20:29], ln[34:43], ln[48:57]
-            S11 = get_one_string_after_id(ln, "S11:")
-            S12 = get_one_string_after_id(ln, "S12:")
-            S13 = get_one_string_after_id(ln, "S13:")
+            S11 = _get_one_string_after_id(ln, "S11:")
+            S12 = _get_one_string_after_id(ln, "S12:")
+            S13 = _get_one_string_after_id(ln, "S13:")
 
         elif "S21:" in ln and "S22:" in ln and "S23:" in ln:
             # S21, S22, S23 = ln[20:29], ln[34:43], ln[48:57]
-            S21 = get_one_string_after_id(ln, "S21:")
-            S22 = get_one_string_after_id(ln, "S22:")
-            S23 = get_one_string_after_id(ln, "S23:")
+            S21 = _get_one_string_after_id(ln, "S21:")
+            S22 = _get_one_string_after_id(ln, "S22:")
+            S23 = _get_one_string_after_id(ln, "S23:")
 
         elif "S31:" in ln and "S32:" in ln and "S33:" in ln:
             # S31, S32, S33 = ln[20:29], ln[34:43], ln[48:57]
-            S31 = get_one_string_after_id(ln, "S31:")
-            S32 = get_one_string_after_id(ln, "S32:")
-            S33 = get_one_string_after_id(ln, "S33:")
+            S31 = _get_one_string_after_id(ln, "S31:")
+            S32 = _get_one_string_after_id(ln, "S32:")
+            S33 = _get_one_string_after_id(ln, "S33:")
 
             if "NULL" in S11 + S22 + S33 + S12 + S13 + S23:
                 t = 'Error: "NULL" values in matrix Sij for tls group=%s\n' % ntls
@@ -1318,7 +1318,7 @@ def get_tlsinp(pdbfile):
 
 
 ##########################################################
-def get_one_string_after_id(line, id):  # pylint: disable=redefined-builtin
+def _get_one_string_after_id(line, id):  # pylint: disable=redefined-builtin
     """get one value after a given id"""
 
     if id not in line:
@@ -1331,7 +1331,7 @@ def get_one_string_after_id(line, id):  # pylint: disable=redefined-builtin
 
 
 ##########################################################
-def convert_range_phenix_to_refmac(ln, chain_range):
+def _convert_range_phenix_to_refmac(ln, chain_range):
     """Convert TLS residue range from phenix to refmac"""
 
     line = ln[24:].replace("(", "").replace(")", "").replace("'", "")
@@ -1348,7 +1348,7 @@ def convert_range_phenix_to_refmac(ln, chain_range):
 
     elif n == 5:
         if "CHAIN" in tmp[0] and len(tmp[1]) == 1 and "AND" in tmp[2] and "RES" in tmp[3]:
-            res = resi_range(tmp[4])
+            res = _resi_range(tmp[4])
             v.append(res)
             val[tmp[1]] = v
 
@@ -1364,9 +1364,9 @@ def convert_range_phenix_to_refmac(ln, chain_range):
         if "CHAIN" in tmp[0] and "AND" in tmp[2] and "RES" in tmp[3] and "OR" in tmp[5] and "RES" in tmp[6]:
             chain = tmp[1]
             val[chain] = v
-            res = resi_range(tmp[4])
+            res = _resi_range(tmp[4])
             v.append(res)
-            res = resi_range(tmp[7])
+            res = _resi_range(tmp[7])
             v.append(res)
 
             # print(tmp , n, val)
@@ -1375,7 +1375,7 @@ def convert_range_phenix_to_refmac(ln, chain_range):
 
 
 ##########################################################
-def resi_range(tmp):
+def _resi_range(tmp):
     v = []
     if ":" in tmp:
         t1 = tmp.split(":")
@@ -1396,7 +1396,7 @@ def resi_range(tmp):
 ##########################################################
 
 
-def do_tlsanl(pdbfile, tls_new_inp, bresid, isoout):
+def _do_tlsanl(pdbfile, tls_new_inp, bresid, isoout):
     """execute csh script to get a new pdb file with modified B=Bres+Btls"""
 
     csh_script = """#!/bin/tcsh  -f
@@ -1485,7 +1485,7 @@ end
 
 
 ##########################################################
-def delete_0_origin(pdbfile):
+def _delete_0_origin(pdbfile):
     """delete the tls group with zero origins.This group is empty"""
 
     fp = open(pdbfile, "r")
@@ -1534,7 +1534,7 @@ def delete_0_origin(pdbfile):
 
 
 ##########################################################
-def correct_tls(pdbfile):
+def _correct_tls(pdbfile):
     """check PDB for possible corrections
     Correct TLS residue range if given as default (for TLSANL)
     """
@@ -1579,13 +1579,13 @@ def correct_tls(pdbfile):
                 if tmp[0] not in range1.keys() and tmp[0] != " ":
                     range1[tmp[0]] = []
                 range1[tmp[0]].append([int(eval(tmp[1])), int(eval(tmp[3]))])  # pylint: disable=eval-used
-                line = correct_tls_overlap(pdbfile, line, range1)
+                line = _correct_tls_overlap(pdbfile, line, range1)
                 if len(line) > 0:
-                    line = correct_tls_overlap(pdbfile, line, range1)
+                    line = _correct_tls_overlap(pdbfile, line, range1)
                 if len(line) < 5:
                     print("Warning! (%s)skiping this line. \n" % (pdbfile))
                     # continue
-            line1 = correct_residue_range(ntls, pdbfile, line, res_range)
+            line1 = _correct_residue_range(ntls, pdbfile, line, res_range)
 
             if len(line1) > 10:
                 fw.write(line1)
@@ -1612,7 +1612,7 @@ def chain_res_range(pdbfile):
     EXTERNAL INTEFACE
     """
 
-    pdb1, pdb2, pdb3 = separate_pdb(pdbfile)
+    pdb1, pdb2, pdb3 = _separate_pdb(pdbfile)
     chain, chain_range = chain_res(pdb1, 0)  # poly-peptide
     chain1, chain_range1 = chain_res(pdb2, 0)  # ligands
     chain2, chain_range2 = chain_res(pdb3, 1)  # waters
@@ -1622,7 +1622,7 @@ def chain_res_range(pdbfile):
 
 
 ##########################################################
-def separate_pdb(pdbfile):
+def _separate_pdb(pdbfile):
     """separate PDB file by polymer pdb1 and ligands pdb2, water pdb3"""
 
     pdb1 = pdbfile + "tmp1"
@@ -1635,7 +1635,7 @@ def separate_pdb(pdbfile):
     for x in fr1:
         if "ANISOU" in x[:6]:
             continue
-        if atom_record(x) and ("HOH" in x[17:20] or "DOD" in x[17:20]):
+        if _atom_record(x) and ("HOH" in x[17:20] or "DOD" in x[17:20]):
             fw3.write(x)
         else:
             fr.append(x)
@@ -1644,8 +1644,8 @@ def separate_pdb(pdbfile):
     i, n = 0, 0
     for i in range(length):
         k = length - i - 1
-        if atom_record(fr[k]):
-            if residue(fr[k][17:20]) and "HETA" not in fr[k][:4]:
+        if _atom_record(fr[k]):
+            if _residue(fr[k][17:20]) and "HETA" not in fr[k][:4]:
                 n = k
                 break
 
@@ -1705,7 +1705,7 @@ def chain_res(pdbfile, id):  # pylint: disable=redefined-builtin
 
 
 ##########################################################
-def correct_tls_overlap(pdbfile, line, range):  # pylint: disable=unused-argument,redefined-builtin
+def _correct_tls_overlap(pdbfile, line, range):  # pylint: disable=unused-argument,redefined-builtin
     tmp = line.split(":")[1].split()
     ch, n1, n2 = tmp[0], int(eval(tmp[1])), int(eval(tmp[3]))  # from current line # pylint: disable=eval-used
     n = 0
@@ -1743,7 +1743,7 @@ def correct_tls_overlap(pdbfile, line, range):  # pylint: disable=unused-argumen
 
 
 ##########################################################
-def correct_residue_range(ntls, pdbfile, line, res_range):
+def _correct_residue_range(ntls, pdbfile, line, res_range):
     """Correct various errors in TLS residue range"""
 
     line1 = line
@@ -1762,12 +1762,12 @@ def correct_residue_range(ntls, pdbfile, line, res_range):
             print(pdbfile + "; Error: wrong residue range(%s).\n" % line[29:].strip())
 
         else:
-            line1 = correct_range(pdbfile, res[1], res[3], line, ch1, res_range)
+            line1 = _correct_range(pdbfile, res[1], res[3], line, ch1, res_range)
 
     elif nr == 3:
         ch1 = res[0]  # noqa: F841
 
-        line1 = correct_range(pdbfile, res[1], res[2], line, ch1, res_range)
+        line1 = _correct_range(pdbfile, res[1], res[2], line, ch1, res_range)
         t = "Warning: residue range correction(%s)->(%s).\n" % (line[29:55].strip(), line1[29:55].strip())
         perror(t)
 
@@ -1775,27 +1775,27 @@ def correct_residue_range(ntls, pdbfile, line, res_range):
         if "-" in res[0] and "-" in res[1]:
             line1 = ""
             if len(chain) > 0:
-                line1 = correct_default(line1, line, chain_range, pdbfile)
+                line1 = _correct_default(line1, line, chain_range, pdbfile)
             if len(chain1) > 0:
-                line1 = correct_default(line1, line, chain_range1, pdbfile)
+                line1 = _correct_default(line1, line, chain_range1, pdbfile)
             if len(chain2) > 0:
-                line1 = correct_default(line1, line, chain_range2, pdbfile)
+                line1 = _correct_default(line1, line, chain_range2, pdbfile)
 
         elif int(res[1]) > int(res[0]):
             ch1 = list(chain.keys())[0]
-            line1 = correct_range(pdbfile, res[0], res[1], line, ch1, res_range)
+            line1 = _correct_range(pdbfile, res[0], res[1], line, ch1, res_range)
             t = "Warning: residue range correction(%s)->(%s).\n" % (line[29:55].strip(), line1[29:55].strip())
             perror(t)
 
         else:
             ch1 = list(chain.keys())[0]
-            line1 = correct_range(pdbfile, res[0], res[1], line, ch1, res_range)
+            line1 = _correct_range(pdbfile, res[0], res[1], line, ch1, res_range)
 
     return line1
 
 
 ##########################################################
-def correct_default(line1, line, chain_range, pdbfile):  # pylint: disable=unused-argument
+def _correct_default(line1, line, chain_range, pdbfile):  # pylint: disable=unused-argument
     for x, y in chain_range.items():
         rrange = "%4s%6d%9s%6d" % (x, y[0], x, y[1])
         tmp = line[:29] + rrange + "   \n"
@@ -1806,7 +1806,7 @@ def correct_default(line1, line, chain_range, pdbfile):  # pylint: disable=unuse
 
 
 ##########################################################
-def correct_range(pdbfile, res1, res2, ln, ch, res_range):
+def _correct_range(pdbfile, res1, res2, ln, ch, res_range):
     """correct various residue range errors to pass the TLSANL"""
 
     chain, chain_range, chain1, chain_range1, chain2, chain_range2 = res_range
@@ -1836,36 +1836,36 @@ def correct_range(pdbfile, res1, res2, ln, ch, res_range):
             np = np + 1
 
     if ch in chain_range.keys() and (n1 in chain[ch] or n2 in chain[ch] or (n1 < chain_range[ch][0] and n2 > chain_range[ch][1]) and n2 <= 999):  # polymer
-        line = check_res_range(pdbfile, ln, chain, ch, n1, n2, 0)
+        line = _check_res_range(pdbfile, ln, chain, ch, n1, n2, 0)
 
     elif ch in chain_range1.keys() and (n1 in chain1[ch] or n2 in chain1[ch]):  # ligands
-        line = check_res_range(pdbfile, ln, chain1, ch, n1, n2, 1)
+        line = _check_res_range(pdbfile, ln, chain1, ch, n1, n2, 1)
 
     elif ch in chain_range2.keys() and (n1 in chain2[ch] or n2 in chain2[ch]):  # waters
-        line = check_res_range(pdbfile, ln, chain2, ch, n1, n2, 2)
+        line = _check_res_range(pdbfile, ln, chain2, ch, n1, n2, 2)
 
     elif ch in chain_range.keys() and ((n1 < 0 and n2 < 0) or (n1 < 1 and n2 > 999)):  # default (all in ch)
         poly1, poly2 = chain_range[ch][0], chain_range[ch][1]
         tmp1, tmp2, tmp3 = "", "", ""
         if ch in chain_range.keys():  # poly
             n1, n2, _idd = chain_range[ch][0], chain_range[ch][1], 1  # noqa: F841
-            tmp1 = make_new_line(pdbfile, ln, ch, n1, n2, 1)
+            tmp1 = _make_new_line(pdbfile, ln, ch, n1, n2, 1)
 
         if ch in chain_range1.keys():  # lig
             n1, n2, _idd = chain_range1[ch][0], chain_range1[ch][1], 1  # noqa: F841
 
             if n1 < poly1 and n2 > poly2:  # lig residue range span polymer
-                tmp2 = make_two_newline(pdbfile, chain1[ch], ln, ch, poly1, poly2, 1)
+                tmp2 = _make_two_newline(pdbfile, chain1[ch], ln, ch, poly1, poly2, 1)
             else:
-                tmp2 = make_new_line(pdbfile, ln, ch, n1, n2, 1)
+                tmp2 = _make_new_line(pdbfile, ln, ch, n1, n2, 1)
 
         if ch in chain_range2.keys():  # water
             n1, n2, _idd = chain_range2[ch][0], chain_range2[ch][1], 1  # noqa: F841
 
             if n1 < poly1 and n2 > poly2:  # lig residue range span polymer
-                tmp3 = make_two_newline(pdbfile, chain2[ch], ln, ch, poly1, poly2, 1)
+                tmp3 = _make_two_newline(pdbfile, chain2[ch], ln, ch, poly1, poly2, 1)
             else:
-                tmp3 = make_new_line(pdbfile, ln, ch, n1, n2, 1)
+                tmp3 = _make_new_line(pdbfile, ln, ch, n1, n2, 1)
 
         line = tmp1 + tmp2 + tmp3
 
@@ -1881,27 +1881,27 @@ def correct_range(pdbfile, res1, res2, ln, ch, res_range):
 
 
 ##########################################################
-def check_res_range(pdbfile, ln, chain, ch, n1, n2, idd):
+def _check_res_range(pdbfile, ln, chain, ch, n1, n2, idd):
     line = ln
     if n1 <= n2:
         idd, nd = 0, n2 - n1
         if n1 not in chain[ch]:
-            n1 = new_number(chain[ch], n1, n2, 1)
+            n1 = _new_number(chain[ch], n1, n2, 1)
         if n2 not in chain[ch]:
-            n2 = new_number(chain[ch], n1, n2, -1)
+            n2 = _new_number(chain[ch], n1, n2, -1)
 
         if nd != n2 - n1:
             idd = 1
-        line = make_new_line(pdbfile, ln, ch, n1, n2, idd)
+        line = _make_new_line(pdbfile, ln, ch, n1, n2, idd)
 
     elif n1 > n2:
-        line = make_new_line(pdbfile, ln, ch, n2, n1, 1)
+        line = _make_new_line(pdbfile, ln, ch, n2, n1, 1)
 
     return line
 
 
 ##########################################################
-def make_two_newline(pdbfile, resn_in, ln, ch, n1, n2, idd):  # pylint: disable=unused-argument
+def _make_two_newline(pdbfile, resn_in, ln, ch, n1, n2, idd):  # pylint: disable=unused-argument
     resn = sorted(resn_in)
     # print(resn, ch, n1, n2, idd)
     k2, nn = 0, len(resn) - 1
@@ -1913,14 +1913,14 @@ def make_two_newline(pdbfile, resn_in, ln, ch, n1, n2, idd):  # pylint: disable=
     m1, m2, m3, m4 = resn[0], resn[k2], resn[k2 + 1], resn[nn]
     # print(m1, m2, m3, m4, ';', resn, ch, n1, n2, idd)
 
-    tmp1 = make_new_line(pdbfile, ln, ch, m1, m2, idd)
-    tmp2 = make_new_line(pdbfile, ln, ch, m3, m4, idd)
+    tmp1 = _make_new_line(pdbfile, ln, ch, m1, m2, idd)
+    tmp2 = _make_new_line(pdbfile, ln, ch, m3, m4, idd)
 
     return tmp1 + tmp2
 
 
 ##########################################################
-def make_new_line(pdbfile, ln, ch, n1, n2, idd):  # pylint: disable=unused-argument
+def _make_new_line(pdbfile, ln, ch, n1, n2, idd):  # pylint: disable=unused-argument
     """return a new line with correct residue ranges.
     id==1, corrected. idd==0, original
     """
@@ -1935,7 +1935,7 @@ def make_new_line(pdbfile, ln, ch, n1, n2, idd):  # pylint: disable=unused-argum
 
 
 ##########################################################
-def new_number(chain, n1, n2, idd):
+def _new_number(chain, n1, n2, idd):
     if idd == 1:  # increase the number
         n = n1
         for i in range(n2 - n1 + 1):
