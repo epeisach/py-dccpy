@@ -35,9 +35,9 @@ def cifparse(flist, cate):
             if m > 1 and val[0][:clen] == cate:  # ciftoken & value in same line
                 ss = ""
                 if val[1][0] == "'":
-                    ss = string_between_char(line[i], "'", "'")
+                    ss = _string_between_char(line[i], "'", "'")
                 elif val[1][0] == '"':
-                    ss = string_between_char(line[i], '"', '"')
+                    ss = _string_between_char(line[i], '"', '"')
                 else:
                     ss = val[1]
 
@@ -94,7 +94,7 @@ def cifparse(flist, cate):
         j = start
         while j < nline:  # through list from start position
             if line[j][0] == ";":
-                m, ss = lines_between_char(j, line, ";")
+                m, ss = _lines_between_char(j, line, ";")
                 values.append(ss)
                 j = m
 
@@ -102,7 +102,7 @@ def cifparse(flist, cate):
             elif line[j][0] == "#" or line[j][:clen] == "loop_" or (line[j][0] == "_" and "." in line[j]):
                 break
             else:
-                tmp = clean_str(line[j])
+                tmp = _clean_str(line[j])
 
                 m1 = 0
                 while m1 < 800:
@@ -110,10 +110,10 @@ def cifparse(flist, cate):
 
                     if tmp[0] == "'" or tmp[0] == '"':
                         cc = tmp[0]
-                        m, ss = string_after_char(0, tmp, cc)
+                        m, ss = _string_after_char(0, tmp, cc)
                         tmp = tmp[m:].lstrip()
                     else:
-                        m, ss = string_after_char(0, tmp, " ")
+                        m, ss = _string_after_char(0, tmp, " ")
                         tmp = tmp[m:].lstrip()
 
                     values.append(ss)
@@ -169,7 +169,7 @@ def parse_values(items, values, item):
 ##########################################################
 #  Below are the applications
 ##########################################################
-def cif_nonloop_format(rows, items):  # pylint: disable=unused-argument
+def _cif_nonloop_format(rows, items):  # pylint: disable=unused-argument
     """get the maximum length in the items"""
 
     fmt = []  # the writing format
@@ -180,7 +180,7 @@ def cif_nonloop_format(rows, items):  # pylint: disable=unused-argument
 
 
 ##########################################################
-def cif_loop_format(rows):
+def _cif_loop_format(rows):
     """the columns are formated (the max length is determined for each column)"""
 
     fmt = []  # the writing format
@@ -199,14 +199,14 @@ def cif_loop_format(rows):
 
 
 ##########################################################
-def string_between_char(ss, c1, c2):
+def _string_between_char(ss, c1, c2):
     """return the string between c1 & c2; ss is the input."""
 
     return ss[ss.find(c1) + 1 : ss.rfind(c2)]
 
 
 ##########################################################
-def string_after_char(k, ss, cc):
+def _string_after_char(k, ss, cc):
     """get one string starting from k and return index and the new string"""
 
     end = k
@@ -238,7 +238,7 @@ def string_after_char(k, ss, cc):
 
 
 ##########################################################
-def lines_between_char(k, lines, cc):
+def _lines_between_char(k, lines, cc):
     """k: the starting position; return cc lines and end position"""
 
     ss, ssnew = "", []
@@ -257,7 +257,7 @@ def lines_between_char(k, lines, cc):
 
 
 ##########################################################
-def clean_str(ss):
+def _clean_str(ss):
     ssnew = ss.split()
     return " ".join(ssnew)
 
@@ -285,34 +285,34 @@ def cif2cif(file):
         for i in range(1, len(nblock)):
             alist = flist[nblock[i - 1] : nblock[i]]
             blockid = flist[nblock[i - 1]]
-            cif2cif_single_block(fw, blockid, alist)
+            _cif2cif_single_block(fw, blockid, alist)
     else:  # no data block name
         alist = flist[0 : len(flist)]
-        cif2cif_single_block(fw, blockid, alist)
+        _cif2cif_single_block(fw, blockid, alist)
 
     return nfile
 
 
 ##########################################################
-def cif2cif_single_block(fw, block, flist):
+def _cif2cif_single_block(fw, block, flist):
     """parse cif and rewrite in new cif. block: the line with block id.; flist: a list"""
 
     fw.write(block)
-    cif = cif_table_items(flist)
+    cif = _cif_table_items(flist)
     for x in cif:
         items, values = cifparse(flist, x[1])
         rows = get_rows(items, values)
 
         n = len(values) / len(items)
         if n == 1:  # non-looped
-            write_cif_non_loop(fw, items, values, rows)
+            _write_cif_non_loop(fw, items, values, rows)
         elif n > 1:  # looped
-            write_cif_loop(fw, items, rows)
+            _write_cif_loop(fw, items, rows)
 
 
 ##########################################################
-def write_cif_non_loop(fw, items, values, rows):
-    fmt = cif_nonloop_format(rows, items)
+def _write_cif_non_loop(fw, items, values, rows):
+    fmt = _cif_nonloop_format(rows, items)
     fw.write("#\n")
     for i, p in enumerate(items):
         v = values[i].strip()
@@ -334,8 +334,8 @@ def write_cif_non_loop(fw, items, values, rows):
 
 
 ##########################################################
-def write_cif_loop(fw, items, rows):
-    fmt = cif_loop_format(rows)
+def _write_cif_loop(fw, items, rows):
+    fmt = _cif_loop_format(rows)
     fw.write("\n#\nloop_\n")
     for p in items:
         fw.write("%s\n" % p)
@@ -359,7 +359,7 @@ def write_cif_loop(fw, items, rows):
 
 
 ##########################################################
-def cif_table_items(flist_all):
+def _cif_table_items(flist_all):
     """get all the block_category_items from the file. Return a list.
     list=[[block, table, [items..], [block, table, [items..]...]
     """
@@ -477,7 +477,7 @@ def get_symm(flist):
 
 
 ##########################################################
-def asym2chain(asym):
+def _asym2chain(asym):
     """If asym has length>2, assign it to 2 letters"""
 
     ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
@@ -520,23 +520,23 @@ def cif2pdb(ciffile):
     fw = open(pdbf, "w")
 
     flist = open(ciffile, "r").readlines()
-    method = add_header(fw, flist)
-    add_remark3(fw, flist, method)
-    add_twin(fw, flist)
-    add_tls(fw, flist)
-    add_remark200(fw, flist)
-    add_remark285(fw, flist)
-    add_ncs(fw, flist)
+    method = _add_header_pdb(fw, flist)
+    _add_remark3(fw, flist, method)
+    _add_twin_pdb(fw, flist)
+    _add_tls_pdb(fw, flist)
+    _add_remark200(fw, flist)
+    _add_remark285(fw, flist)
+    _add_ncs(fw, flist)
 
     c = get_cell(flist)
     s = get_symm(flist)
 
     ss = "CRYST1 %8.3f %8.3f %8.3f %6.2f %6.2f %6.2f %-10s \n" % (c[0], c[1], c[2], c[3], c[4], c[5], s)
     fw.write(ss)
-    add_scale(fw, flist)
+    _add_scale_pdb(fw, flist)
 
     # for anisou records
-    _unatm, uatom, uasym, useq, ucomp, _uins, _ualt, u11, u22, u33, u12, u13, u23 = get_uij(flist)
+    _unatm, uatom, uasym, useq, ucomp, _uins, _ualt, u11, u22, u33, u12, u13, u23 = _get_uij(flist)
 
     # for xyz
     group, natm, atom, asym, seq, comp, ins, alt, x, y, z, occ, biso, model, symbol = get_xyz(flist)
@@ -548,7 +548,7 @@ def cif2pdb(ciffile):
     if model and is_a_number(model[-1]) and int(model[-1]) > 1:
         nmodel = int(model[-1])
 
-    asym2ch = asym2chain(asym)
+    asym2ch = _asym2chain(asym)
 
     nline = len(x)
     if not group:
@@ -677,6 +677,7 @@ def cif2pdb(ciffile):
 
 ##########################################################
 def get_xyz(flist):
+    """From list of lines of cif data, extact coordinates"""
     items, values = cifparse(flist, "_atom_site.")  # a loop
     group = parse_values(items, values, "_atom_site.group_PDB")
     natm = parse_values(items, values, "_atom_site.id")
@@ -706,7 +707,7 @@ def get_xyz(flist):
 
 
 ##########################################################
-def get_uij(flist):
+def _get_uij(flist):
     """pars the anisou records"""
 
     items, values = cifparse(flist, "_atom_site_anisotrop.")  # a loop
@@ -756,7 +757,7 @@ def get_uij(flist):
 
 
 ##########################################################
-def add_twin(fw, flist):
+def _add_twin_pdb(fw, flist):
     """Add twin records to PDB, if exist"""
 
     items, values = cifparse(flist, "_pdbx_reflns_twin.")  # a loop
@@ -812,7 +813,7 @@ def get_prog(flist):
 
 
 ##########################################################
-def add_tls(fw, flist):
+def _add_tls_pdb(fw, flist):
     """Add TLS records to PDB, if exist"""
 
     prog, _version = get_prog(flist)
@@ -913,7 +914,7 @@ def add_tls(fw, flist):
             tmp = []
         elif detail:
             details = detail[i].replace("\n", " ")
-            write_select_phenix_buster(fw, details, prog)
+            _write_select_phenix_buster_pdb(fw, details, prog)
         elif "PHENIX" in prog or "BUSTER" in prog:
             print("Error: problem in atom selection for the TLS group (%d)" % n)
         else:
@@ -951,7 +952,7 @@ def add_tls(fw, flist):
 
 
 ##########################################################
-def write_select_phenix_buster(fw, detail, prog):
+def _write_select_phenix_buster_pdb(fw, detail, prog):
     select = "REMARK   3    SELECTION:"
     select1 = "REMARK   3             :"
     if "BUSTER" in prog:
@@ -977,7 +978,7 @@ def write_select_phenix_buster(fw, detail, prog):
 
 
 ##########################################################
-def add_header(fw, flist):
+def _add_header_pdb(fw, flist):
     """Add simple stuff for the head"""
 
     items, values = cifparse(flist, "_database_2.")
@@ -1020,7 +1021,7 @@ def add_header(fw, flist):
 
 
 ##########################################################
-def add_remark3(fw, flist, method):
+def _add_remark3(fw, flist, method):
     """Add simple stuff for REMARK3"""
 
     items, values = cifparse(flist, "_refine.")
@@ -1157,7 +1158,7 @@ REMARK   3
 
 
 ##########################################################
-def add_remark285(fw, flist):
+def _add_remark285(fw, flist):
     """ """
     # for 285
     items, values = cifparse(flist, "_pdbx_database_remark.")
@@ -1208,7 +1209,7 @@ def add_remark285(fw, flist):
 
 
 ##########################################################
-def add_scale(fw, flist):
+def _add_scale_pdb(fw, flist):
     """some programs need it."""
 
     items, values = cifparse(flist, "_atom_sites.")
@@ -1243,7 +1244,7 @@ def add_scale(fw, flist):
 
 
 ##########################################################
-def add_ncs(fw, flist):
+def _add_ncs(fw, flist):
     """mainly for virus"""
 
     items, values = cifparse(flist, "_struct_ncs_oper.")
@@ -1284,7 +1285,7 @@ def add_ncs(fw, flist):
 
 
 ##########################################################
-def add_remark200(fw, flist):
+def _add_remark200(fw, flist):
     """only for source"""
     items, values = cifparse(flist, "_diffrn_source.")
     syc = parse_values(items, values, "_diffrn_source.pdbx_synchrotron_y_n")
