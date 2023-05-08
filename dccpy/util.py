@@ -260,15 +260,15 @@ def is_number(s):
 
 ##########################################################
 def is_digit(s):
-    n = 0
+    n = False
     if len(s) == 0:
-        return 0
+        return False
     if s[0:1] == "-":
         if s[1:].isdigit():
-            n = 1
+            n = True
     else:
         if s.isdigit():
-            n = 1
+            n = True
 
     return n
 

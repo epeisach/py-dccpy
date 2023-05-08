@@ -1168,7 +1168,7 @@ def precheck_tls(pdbfile):
     for x in fr:
         if "REMARK   3    RESIDUE RANGE : " in x:
             tmp = x.split(":")[1].split()
-            if len(tmp) != 4 or is_digit(tmp[1]) == 0 or is_digit(tmp[3]) == 0 or (int(tmp[1]) < 0 and (int(tmp[3]) == -1 or int(tmp[3]) >= 999)):
+            if len(tmp) != 4 or is_digit(tmp[1]) is False or is_digit(tmp[3]) is False or (int(tmp[1]) < 0 and (int(tmp[3]) == -1 or int(tmp[3]) >= 999)):
                 wk = 0
                 break
 
@@ -1572,7 +1572,7 @@ def correct_tls(pdbfile):
         elif "REMARK   3    RESIDUE RANGE : " in line:
             tmp = line.split(":")[1].split()
             if " NULL " not in line and len(tmp) == 4 and tmp[0] == tmp[2]:
-                if is_digit(tmp[1]) <= 0 or is_digit(tmp[3]) <= 0:
+                if is_digit(tmp[1]) is False or is_digit(tmp[3]) is False:
                     # print('Error: (%s; Residue-range: %s)' %(pdbfile, line[29:].strip()))
                     continue
 
@@ -1771,7 +1771,7 @@ def correct_residue_range(ntls, pdbfile, line, res_range):
         t = "Warning: residue range correction(%s)->(%s).\n" % (line[29:55].strip(), line1[29:55].strip())
         perror(t)
 
-    elif nr == 2 and is_digit(ntls) > 0 and int(ntls) == 1 and is_digit(res[0]) > 0 or is_digit(res[1]) > 0:
+    elif nr == 2 and is_digit(ntls) and int(ntls) == 1 and is_digit(res[0]) or is_digit(res[1]):
         if "-" in res[0] and "-" in res[1]:
             line1 = ""
             if len(chain) > 0:
@@ -1813,7 +1813,7 @@ def correct_range(pdbfile, res1, res2, ln, ch, res_range):
 
     line = ""
 
-    if is_digit(res1) == 0 or is_digit(res2) == 0:
+    if is_digit(res1) is False or is_digit(res2) is False:
         print(pdbfile + "; Error: wrong residue range(%s)." % ln[29:].strip())
         return ln
 
