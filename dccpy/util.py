@@ -4,7 +4,6 @@
 
 
 import os
-import sys
 import math
 import shutil
 import re
@@ -227,28 +226,6 @@ def str_between_id(line, id1, id2):
 
 
 ##########################################################
-def float_between_id(line, id1, id2):
-    """get float value between the two ids"""
-
-    if id1 not in line or id2 not in line:
-        print("Warning: either %s or %s not in string" % (id1, id2))
-        return 9999.0
-    n1, n2 = line.index(id1), line.index(id2)
-    return float(line[n1 + 1 : n2])
-
-
-##########################################################
-def int_between_id(line, id1, id2):
-    """get int value between the two ids"""
-
-    if id1 not in line or id2 not in line:
-        print("Warning: either %s or %s not in string" % (id1, id2))
-        return 9999
-    n1, n2 = line.index(id1), line.index(id2)
-    return int(line[n1 + 1 : n2])
-
-
-##########################################################
 def is_number(s):
     try:
         float(s)
@@ -284,25 +261,6 @@ def get_value_after_id(line, id):  # pylint: disable=redefined-builtin
     if len(value) <= 0 or value.upper() == "NULL":
         value = "?"
     return value
-
-
-##########################################################
-def is_bigcif(file):
-    """big cif has chainID more than one charactors
-    return 0: not cif
-    """
-    n = 0
-    flist = open(file, "r").readlines()
-    items, values = cif.cifparse(flist, "_atom_site.")  # a loop
-    asym = cif.parse_values(items, values, "_atom_site.auth_asym_id")
-    if asym:
-        for x in asym:
-            if len(x) > 1:
-                n = 2
-                print("Note: Cif file (%s) has chainID >1 charactor." % file)
-                break
-
-    return n
 
 
 ##########################################################
@@ -722,54 +680,6 @@ def residue_mass(resname):
         # mass=310
 
     return mass
-
-
-##########################################################
-
-
-def get_file_by_pdbid(pdbid_in, idd):
-    """pdbid_in : 4 char PDBID;   idd='cifid|pdbid|cif|pdb|sf'"""
-
-    pth = "/net/ftp_tree_v5/ftp-v5.0/pdb/data/structures/divided/"
-    # www_path = "http://www.rcsb.org/pdb/files"
-
-    pdbid = pdbid_in.lower()
-    if len(pdbid) != 4:
-        print("Error: PDBID (%s) is not 4 characters. " % pdbid)
-        sys.exit()
-
-    hash = pdbid[1:3]  # pylint: disable=redefined-builtin
-
-    cif = "%s/mmCIF/%s/%s.cif.gz" % (pth, hash, pdbid)  # pylint: disable=redefined-outer-name
-    pdb = "%s/pdb/%s/pdb%s.ent.gz" % (pth, hash, pdbid)
-    sf = "%s/structure_factors/%s/r%ssf.ent.gz" % (pth, hash, pdbid)
-
-    sffile = "r" + pdbid + "sf.ent"
-    pdbfile = "pdb" + pdbid + ".ent"
-    ciffile = pdbid + ".cif"
-
-    if idd == "pdb":
-        os.system("zcat  %s > %s " % (pdb, pdbfile))
-        if not check_file(10, pdbfile):
-            os.system("zcat  %s > %s " % (cif, pdbfile))  # for large entry
-        return pdbfile, ""
-    elif idd == "sf":
-        os.system("zcat  %s > %s " % (sf, sffile))
-        return "", sffile
-    elif idd == "cif":
-        os.system("zcat  %s > %s " % (cif, ciffile))
-        return ciffile, ""
-    elif idd == "cifid":
-        os.system("zcat  %s > %s " % (cif, ciffile))
-        os.system("zcat  %s > %s " % (sf, sffile))
-        return ciffile, sffile
-    elif idd == "pdbid":
-        os.system("zcat  %s > %s " % (pdb, pdbfile))
-        os.system("zcat  %s > %s " % (sf, sffile))
-        return pdbfile, sffile
-    else:
-        print("Error: wrong file format. ")
-        sys.exit()
 
 
 ##########################################################
