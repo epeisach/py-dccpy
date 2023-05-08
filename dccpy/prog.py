@@ -6,7 +6,7 @@ import config
 import parse
 import cns_inp
 import dcc_calc as main
-import cifparse as cif
+import cif2pdb
 import write_cif
 
 
@@ -276,7 +276,7 @@ def run_sfcheck(pdbfile_in, sffile, dic, detail):
 
     pdbfile = pdbfile_in
     if idd:
-        pdbfile = cif.cif2pdb(pdbfile_in)
+        pdbfile = cif2pdb.cif2pdb(pdbfile_in)
 
     if util.is_number(dic["resh"]):
         arg = "%ssf_convert  -o mmcif  -sf %s -cut %s >/dev/null" % (config.PATH1, sffile, dic["resh"])
@@ -603,7 +603,7 @@ def run_cns(dic, pdb_new, cns_sf):
 
     pdb_tmp = pdb_new
     if util.is_cif(pdb_new):
-        pdb_tmp = cif.cif2pdb(pdb_new)
+        pdb_tmp = cif2pdb.cif2pdb(pdb_new)
 
     # pdb_1 = fix_dna_rna_cns(pdb_tmp)
     (cns_pdb, cns_mtf) = generate_cns_mtf(pdb_tmp)

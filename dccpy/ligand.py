@@ -10,6 +10,7 @@ import config
 import util
 import tls
 import cifparse as cif
+import cif2pdb
 
 
 ##########################################################
@@ -25,7 +26,7 @@ def cut_map_around_ligand_peptide(dccfile, dic, mapfile_in, xyzfile_in):
 
     tmpxyz = xyzfile_in
     if util.is_cif(xyzfile_in):
-        tmpxyz = cif.cif2pdb(xyzfile_in)
+        tmpxyz = cif2pdb.cif2pdb(xyzfile_in)
     pdbfile = os.path.basename(dic["pdbfile"]) + "_new"
     if pdbfile != tmpxyz:
         shutil.copy(tmpxyz, pdbfile)
@@ -309,7 +310,7 @@ def parse_xyz_compound(compid, coord, idd):
     fw = open(compdb, "w")
 
     if idd == 0:
-        tmpfile = cif.cif2pdb(coord)
+        tmpfile = cif2pdb.cif2pdb(coord)
         fp = open(tmpfile, "r")
         os.remove(tmpfile)
     else:
@@ -922,7 +923,7 @@ def cut_map_around_xyz(mapfile, peppdb_in, pepid):
 
     peppdb = peppdb_in
     if util.is_cif(peppdb_in):
-        peppdb = cif.cif2pdb(peppdb_in)
+        peppdb = cif2pdb.cif2pdb(peppdb_in)
 
     mapscr = cut_map_scr()
     arg = mapfile + " " + peppdb + " " + mapout

@@ -6,8 +6,7 @@ import sys
 import ligand
 import parse
 import util
-import cifparse as cif
-
+import cif2pdb
 #
 
 
@@ -24,7 +23,7 @@ def process(*files):
 
     dic = {}
     dic["pdbfile"] = xyz
-    _pdb = cif.cif2pdb(xyz)  # noqa: F841
+    _pdb = cif2pdb.cif2pdb(xyz)  # noqa: F841
     pdbfile = xyz + ".PDB"
 
     sdsc_ligand(dic, map2fofc, pdbfile)

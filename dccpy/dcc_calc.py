@@ -16,6 +16,7 @@ import util
 import ncs
 import write_cif
 import cifparse as cif
+import cif2pdb
 
 # import pychecker.checker
 
@@ -372,7 +373,7 @@ def get_argument(arg, dic):
             sys.exit()
 
         elif arg[k].upper() == "-CIF2PDB":
-            pdbfile = cif.cif2pdb(arg[k + 1])
+            pdbfile = cif2pdb.cif2pdb(arg[k + 1])
             print("The output file = %s" % pdbfile)
             sys.exit()
 
@@ -516,7 +517,7 @@ def check_xyz(dic):
         print("Input coordinate format=mmCIF")
         dic["xyz_type"] = "cif"
         # check_cif(xyzfile, dic) #check cif and update dic
-        tmpfile = cif.cif2pdb(xyzfile)
+        tmpfile = cif2pdb.cif2pdb(xyzfile)
         dic["pdbfile_orig"] = tmpfile  #
         dic["pdbfile"] = check_pdb(tmpfile, dic)
 
@@ -2652,7 +2653,7 @@ def update_bfull(dic):
     iscif = 0
     pdbfile = dic["bfull"]
     if util.is_cif(file):
-        pdbfile = cif.cif2pdb(file)
+        pdbfile = cif2pdb.cif2pdb(file)
         iscif = 1
 
     pdb_new = check_pdb(pdbfile, dic)  # tls, also update dic
