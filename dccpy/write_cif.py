@@ -697,11 +697,20 @@ def eds2cif(edsfile, dic):
     fr.seek(0)
     rscc, rscc_p = [], []
 
+    inv_map = {}
+    if "pdbfile_map" in dic:
+        # Create reverse mapping for replaced PDB id with longer
+        inv_map = {v: k for k, v in dic["pdbfile_map"].items()}
+
     for x in fr:
         if "[" in x and "]" in x and len(x) > 127:
             if "residue_id" in x:
                 continue
             (resname, ch, resseq, ins, dcc, rsr, biso, ac, occ) = (x[8:11], x[11:13].strip(), x[13:17], x[17:18], x[19:26], x[26:32], x[32:40], x[59:60], x[94:100])
+
+            # strip spaces
+            if "pdbfile_map" in dic and resname.strip() in inv_map:
+                resname = inv_map[resname.strip()]
 
             if not ch:
                 ch = "."

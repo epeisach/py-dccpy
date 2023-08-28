@@ -1172,6 +1172,8 @@ def run_eds_omit(mtzo, pdbfile, dic, dic3):
     dic3["pdb_new"] = pdbfile
     dic3["pdbid"] = dic["pdbid"]
     dic3["rsrd"] = dic["rsrd"]
+    if "pdbfile_map" in dic:
+        dic3["pdbfile_map"] = dic["pdbfile_map"]
     cifrefm1 = write_cif.eds2cif(edsout, dic3)  # get edsout in cif
     if not dic["verb"]:
         # util.delete_file(pdb3,log3,scr )
@@ -1221,6 +1223,8 @@ def run_eds_fem(mtzfile, pdbfile, dic, dic3):
     dic3["pdb_new"] = pdbfile
     dic3["pdbid"] = dic["pdbid"]
     dic3["rsrd"] = dic["rsrd"]
+    if "pdbfile_map" in dic:
+        dic3["pdbfile_map"] = dic["pdbfile_map"]
     cifrefm1 = write_cif.eds2cif(edsout, dic3)  # get edsout in cif
     if not dic["verb"]:
         util.delete_file("lx_mapman.log", "mtz2eds_xyzlim.csh")
@@ -1286,6 +1290,8 @@ def run_eds(mtzfile, pdbfile, dic, dic3):
     dic3["pdb_new"] = pdbfile
     dic3["pdbid"] = dic["pdbid"]
     dic3["rsrd"] = dic["rsrd"]
+    if "pdbfile_map" in dic:
+        dic3["pdbfile_map"] = dic["pdbfile_map"]
     cifrefm1 = write_cif.eds2cif(edsout, dic3)  # get edsout in cif
     if not dic["verb"]:
         util.delete_file("lx_mapman.log", "mtz2eds_xyzlim.csh")
@@ -1397,6 +1403,8 @@ def run_edsall(mtzfile, pdbfile, dic, dic3):
         return
 
     dic3["pdb_new"] = pdbfile
+    if "pdbfile_map" in dic:
+        dic3["pdbfile_map"] = dic["pdbfile_map"]
     pdb1, pdb2, pdb3 = split_pdb(pdbfile)
 
     map_fc = "CCP4_FC.map"
