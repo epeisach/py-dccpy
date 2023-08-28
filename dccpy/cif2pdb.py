@@ -10,6 +10,13 @@ from cifparse import parse_values, is_a_number, get_cell, cifparse, get_symm, ge
 def cif2pdb(ciffile):
     """convert the cif to simple pdb file. (good enough for validation)"""
 
+    fname_out, _mapfile = cif2pdb_ext(ciffile)
+    return fname_out
+
+
+def cif2pdb_ext(ciffile):
+    """convert the cif to simple pdb file. (good enough for validation).  For CCD > 5 characters return mapping file"""
+
     pdbf = ciffile + ".PDB"
     fw = open(pdbf, "w")
 
@@ -37,6 +44,45 @@ def cif2pdb(ciffile):
     if not (atom and comp and asym and seq and x and y and z and occ and biso and symbol):
         print("Error: Cif (%s) to pdb conversion failed. Missing the key cif tokens on atom_site." % ciffile)
         sys.exit()
+
+    # Create map for CCD if needed
+
+    # Get list of CCDs used in this file
+    hasextended = False
+
+    usedccd = set()
+    # In case incoming file has a special CCD - so we cannot use
+    for idx in range(len(comp)):
+        ccd = comp[idx]
+        if ccd not in usedccd:
+            usedccd.add(ccd)
+            if len(ccd) > 3:
+                hasextended = True
+
+    ccdmap = {}
+    if hasextended:
+        nextid = 0
+        # Map
+        for idx in range(len(comp)):
+            ccd = comp[idx]
+            if len(ccd) > 3:
+                if ccd not in ccdmap:
+                    # Create lookup
+                    haveext = False
+                    while (not haveext):
+                        extccdname = "%02d" % nextid
+                        if extccdname in usedccd:
+                            # Used already from incoming model
+                            nextid += 1
+                            continue
+                        haveext = True
+                        ccdmap[ccd] = extccdname
+                    if not haveext:
+                        print("Error: Cif (%s) to pdb conversion failed. Could not map extended CCD." % ciffile)
+                        sys.exit()
+                comp[idx] = ccdmap[ccd]
+
+    ######
 
     nmodel = 1
     if model and is_a_number(model[-1]) and int(model[-1]) > 1:
@@ -166,7 +212,7 @@ def cif2pdb(ciffile):
     fw.write("END\n")
     fw.close()
 
-    return pdbf
+    return pdbf, ccdmap
 
 
 ##########################################################

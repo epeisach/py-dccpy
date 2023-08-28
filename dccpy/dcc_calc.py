@@ -517,10 +517,10 @@ def check_xyz(dic):
         print("Input coordinate format=mmCIF")
         dic["xyz_type"] = "cif"
         # check_cif(xyzfile, dic) #check cif and update dic
-        tmpfile = cif2pdb.cif2pdb(xyzfile)
+        tmpfile, pdbmap = cif2pdb.cif2pdb_ext(xyzfile)
         dic["pdbfile_orig"] = tmpfile  #
         dic["pdbfile"] = check_pdb(tmpfile, dic)
-
+        dic["pdbfile_map"] = pdbmap
     else:
         dic["xyzfile_cif"] = False
         print("Input coordinate format=PDB")
