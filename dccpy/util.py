@@ -272,26 +272,30 @@ def is_cif(file):
     if not os.path.exists(file):
         return n
 
-    fp = open(file, "r")
-    for x in fp:
-        t = x.strip()
-        if len(t) < 4 or t[0] == "#":
-            continue
-        m = m + 1
-        if m > 100:
-            break
-
-        if ("data_" in t[:5] and len(t) > 5) or ("loop_" in t[:5] and len(t) == 5):
-            n = 1
-            break
-        elif t[0] == "_" and "." in t:
-            n1, _cate, _item = cif.check_item(t)
-            if n1 > 0:
-                n = 1
+    try:
+        fp = open(file, "r")
+        for x in fp:
+            t = x.strip()
+            if len(t) < 4 or t[0] == "#":
+                continue
+            m = m + 1
+            if m > 100:
                 break
 
-        elif "HEADER  " in x[:8] or "COMPND  " in x[:8] or "CRYST1 " in x[:7] or "ATOM  " in x[:6]:
-            break
+            if ("data_" in t[:5] and len(t) > 5) or ("loop_" in t[:5] and len(t) == 5):
+                n = 1
+                break
+            elif t[0] == "_" and "." in t:
+                n1, _cate, _item = cif.check_item(t)
+                if n1 > 0:
+                    n = 1
+                    break
+
+            elif "HEADER  " in x[:8] or "COMPND  " in x[:8] or "CRYST1 " in x[:7] or "ATOM  " in x[:6]:
+                break
+    except UnicodeDecodeError:
+        # Error parsing files - of well...
+        return 0
 
     fp.close()
     return n

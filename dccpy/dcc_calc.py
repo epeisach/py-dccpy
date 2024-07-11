@@ -3146,10 +3146,14 @@ def check_error(pdbfile, sffile, dic):
         return
 
     cell_sf, spg_sf = " ", " "
-    flist = open(sffile, "r").readlines()
 
-    cell_sf = cif.get_cell(flist)
-    spg_sf = cif.get_symm(flist)
+    try:
+        flist = open(sffile, "r").readlines()
+
+        cell_sf = cif.get_cell(flist)
+        spg_sf = cif.get_symm(flist)
+    except UnicodeDecodeError:
+        util.perror("Warning: non-ASCII sf-file cross checks not run")
 
     if "?" in dic["cell"]:
         util.perror("Warning: input file (%s) has no cell parameters!" % pdbfile)

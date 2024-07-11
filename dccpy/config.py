@@ -15,7 +15,7 @@ if "DCCPY" in os.environ:
 
 ERRLOG = []  # contains all the error/warning messages
 
-VERSION = "2.28  (2023-09-04))"
+VERSION = "2.29  (2024-07-11))"
 
 # ===================Some pre-defined messages =====================#
 DCC = "A wrapper of crystallographic applications"
@@ -153,6 +153,8 @@ SF_FMT = "convert structure factor format"
 # 108. Correct edstats log file parsing for newer version of edstats
 # 109. Python 3 compatibility (12/31/2019)
 # 110. Code cleanup. For Phenix, if PDBx/mmCIF provided, use it. (04/10/2023)
+# 111. Do not use PDBx/mmCIF for phenix yet
+# 112. Handle code assuming can readlines from SF file. For MTZ in python 3.10, unicode error (07/11/2024)
 #
 # Examples:
 # (Note: '-pdbid id'  is the same as '-pdb pdbfile -sf sffile')
