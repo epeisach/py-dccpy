@@ -331,9 +331,10 @@ def run_phenix(dic, dic1, type1):
 
     pdbfile = dic["pdbfile"]
 
-    if dic.get("xyzfile_cif", False):
-        pdbfile = dic["xyzfile_orig"]
-        # print("Using original PDBx/mmCIF file %s" % pdbfile)
+    # Newer phenix will support 5 character CCD - not yet in 1.13
+    # if dic.get("xyzfile_cif", False):
+    #     pdbfile = dic["xyzfile_orig"]
+    #     # print("Using original PDBx/mmCIF file %s" % pdbfile)
 
     if (dic["sf_f"] and not dic["sf_sigf"]) or (dic["sf_i"] and not dic["sf_sigi"]):
         sffile = dic["sffile"]  # (sigma added)

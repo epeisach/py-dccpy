@@ -17,7 +17,8 @@ SRC_DIR     = $(PROJ_DIR)
 #----------------------------------------------------------------------------
 include ../etc/Makefile.platform
 
-PYTHON_FILES   =   cifparse.py \
+PYTHON_FILES   =   cif2pdb.py \
+		   cifparse.py \
 		   cns_inp.py \
 		   config.py \
 		   ligand.py \
